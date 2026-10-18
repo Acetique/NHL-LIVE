@@ -268,10 +268,12 @@ if all_players:
     save('/league/skaters',{'season':season,'players':list(all_players.values()),'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
     print('Statistiques LNH :',len(all_players),'joueurs.',flush=True)
 
-# Rafraîchir les journaux de tous les joueurs par rotation, y compris ceux déjà créés.
+# V10.4 : rafraîchir les journaux des joueurs ET gardiens par rotation, y compris ceux déjà créés.
 # Le quota limite les requêtes par exécution sans bloquer indéfiniment les mêmes joueurs.
 ordered=sorted(all_players.values(),key=lambda p:p.get('points') or 0,reverse=True)
-log_paths=[f'/player/{p["playerId"]}/game-log/{season}/2' for p in ordered]
+# Inclure aussi les gardiens : leurs fiches utilisent les mêmes endpoints.
+profile_players=list({str(p['playerId']):p for p in [*ordered,*all_goalies.values()] if p.get('playerId')}.values())
+log_paths=[f'/player/{p["playerId"]}/game-log/{season}/2' for p in profile_players]
 log_requested,log_failures=refresh_player_batch(log_paths,120,6,'Journaux joueurs LNH')
 
 # Détails des rencontres du jour, toutes équipes : éviter les 404 après
@@ -294,7 +296,7 @@ meta=json.loads(meta_file.read_text(encoding='utf-8')) if meta_file.exists() els
 meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'league_players':len(all_players),'version':'9'})
 save('/metadata',meta)
 # Actualiser également les fiches existantes (pas uniquement les nouvelles).
-landing_paths=[f'/player/{p["playerId"]}/landing' for p in ordered]
+landing_paths=[f'/player/{p["playerId"]}/landing' for p in profile_players]
 landing_requested,landing_failures=refresh_player_batch(landing_paths,120,6,'Fiches avancées LNH')
 # Fusionner les valeurs avancées disponibles dans le tableau global.
 for p in all_players.values():
@@ -318,6 +320,6 @@ if all_players:
     save('/league/top-scorers',{'season':season,'players':[{'playerId':p.get('playerId'),'name':p.get('name'),'teamAbbrev':p.get('teamAbbrev'),'gamesPlayed':p.get('gamesPlayed'),'goals':p.get('goals'),'assists':p.get('assists'),'points':p.get('points')} for p in ranked[:100]],'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
 meta_file=DEST/'metadata.json'
 meta=json.loads(meta_file.read_text(encoding='utf-8')) if meta_file.exists() else {}
-meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'player_logs_requested':log_requested,'player_logs_failed':len(log_failures),'player_landings_requested':landing_requested,'player_landings_failed':len(landing_failures),'failed_teams':failed_teams,'version':'10.3'})
+meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'player_logs_requested':log_requested,'player_logs_failed':len(log_failures),'player_landings_requested':landing_requested,'player_landings_failed':len(landing_failures),'failed_teams':failed_teams,'profile_players':len(profile_players),'version':'10.4'})
 save('/metadata',meta)
 print('V10 :',len(all_players),'joueurs LNH,',meta['league_teams'],'équipes, classement complet généré.',flush=True)
