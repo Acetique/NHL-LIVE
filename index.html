@@ -1452,6 +1452,25 @@ loadLeagueGoalieList();
  const num=v=>v===undefined||v===null||v===''?'—':v;
  const seasonId=()=>{const y=new Date().getMonth()>=8?new Date().getFullYear():new Date().getFullYear()-1;return y*10000+y+1;};
  const fetchOptional=async path=>{try{return await get(path)}catch(e){return null}};
+ // Priorité à l'API officielle lors de l'ouverture d'une fiche. GitHub Pages sert de secours.
+ const freshPlayerData=async (path)=>{
+   try {
+     const ctrl=new AbortController();
+     const timeout=setTimeout(()=>ctrl.abort(),9000);
+     try {
+       const response=await fetch('https://api-web.nhle.com/v1'+path+'?ts='+Date.now(),{cache:'no-store',signal:ctrl.signal});
+       if(!response.ok)throw Error('API LNH '+response.status);
+       const data=await response.json();
+       if(!data||typeof data!=='object')throw Error('Réponse invalide');
+       data._live_fetched_at=new Date().toISOString();
+       return data;
+     } finally {clearTimeout(timeout)}
+   }catch(error){
+     const cached=await fetchOptional(path);
+     if(cached)cached._cache_fallback=true;
+     return cached;
+   }
+ };
  const row=(a)=>'<tr>'+a.map(v=>`<td>${esc(v)}</td>`).join('')+'</tr>';
  const table=(heads,rows)=>`<div class="tablewrap"><table><thead><tr>${heads.map(h=>`<th>${esc(h)}</th>`).join('')}</tr></thead><tbody>${rows.length?rows.map(row).join(''):`<tr><td colspan="${heads.length}">Aucune donnée disponible.</td></tr>`}</tbody></table></div>`;
  const field=(label,value)=>`<div class="metric"><span class="muted">${esc(label)}</span><strong>${esc(value)}</strong></div>`;
@@ -1462,12 +1481,12 @@ loadLeagueGoalieList();
  function schedulePane(schedule,id){const games=schedule?.games||[];const now=Date.now();const upcoming=games.filter(x=>new Date(x.startTimeUTC||x.gameDate).getTime()>=now-86400000&&!['FINAL','OFF'].includes(x.gameState)).sort((a,b)=>new Date(a.startTimeUTC)-new Date(b.startTimeUTC));return `<p class="nhl-player-note">Horaire de l'équipe actuelle du joueur. La participation individuelle à chaque match n'est pas garantie.</p>`+table(['Date','Adversaire','Domicile / Extérieur','Heure (Québec)','État'],upcoming.map(x=>{const home=x.homeTeam?.abbrev,away=x.awayTeam?.abbrev;const own=String(schedule.__team||'').toUpperCase();const isHome=home===own;const date=new Date(x.startTimeUTC||x.gameDate);return [x.gameDate,isHome?away:home,isHome?'Domicile':'Extérieur',Number.isNaN(date.getTime())?'—':date.toLocaleTimeString('fr-CA',{timeZone:'America/Toronto',hour:'2-digit',minute:'2-digit'}),x.gameState||'À venir']}));}
  let request=0;
  async function addTabs(id,container,goalie){const token=++request;const p=(typeof allSkaters!=='undefined'?allSkaters:[]).find(x=>Number(x.playerId)===id)||(typeof leagueGoalieList!=='undefined'?leagueGoalieList:[]).find(x=>Number(x.playerId)===id)||(typeof skaters!=='undefined'?skaters:[]).find(x=>Number(x.playerId)===id)||(typeof goalies!=='undefined'?goalies:[]).find(x=>Number(x.playerId)===id)||{};
-  const d=await fetchOptional(`/player/${id}/landing`);if(token!==request||!container||!container.isConnected)return;
+  const d=await freshPlayerData(`/player/${id}/landing`);if(token!==request||!container||!container.isConnected)return;
   const meta=await fetchOptional('/metadata');const season=Number(meta?.season)||Number(d?.featuredStats?.season)||seasonId();const team=String(d?.currentTeamAbbrev||p.teamAbbrev||'MTL');
-  const log=await fetchOptional(`/player/${id}/game-log/${season}/2`);if(token!==request||!container.isConnected)return;
-  const tabs=[['stats','Statistiques'],['bio','Biographie'],['games','Match par match'],['career','Carrière']];const collected=d?._collected_at?new Date(d._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';const logCollected=log?._collected_at?new Date(log._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';
+  const log=await freshPlayerData(`/player/${id}/game-log/${season}/2`);if(token!==request||!container.isConnected)return;
+  const tabs=[['stats','Statistiques'],['bio','Biographie'],['games','Match par match'],['career','Carrière']];const collected=(d?._live_fetched_at||d?._collected_at)?new Date(d._live_fetched_at||d._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';const logCollected=(log?._live_fetched_at||log?._collected_at)?new Date(log._live_fetched_at||log._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';const careerSource=d?._cache_fallback?' · Cache GitHub (API LNH indisponible)':' · API LNH directe';const logSource=log?._cache_fallback?' · Cache GitHub (API LNH indisponible)':' · API LNH directe';
   const existing=container.innerHTML;
-  container.innerHTML=`<div class="nhl-player-tabs" role="tablist" aria-label="Fiche du joueur">${tabs.map(([k,t],i)=>`<button type="button" data-player-tab="${k}" class="${i===0?'active':''}" aria-selected="${i===0}">${t}</button>`).join('')}</div><div class="nhl-player-pane nhl-stats-pane" data-player-pane="stats"><div class="nhl-pane-heading"><span class="nhl-pane-icon">📊</span><div><h3>Statistiques du joueur</h3><p>Performance et indicateurs de la saison</p></div></div><div class="nhl-stats-content">${existing}</div></div><div class="nhl-player-pane" data-player-pane="bio" hidden><div class="nhl-pane-heading"><span class="nhl-pane-icon">👤</span><div><h3>Biographie</h3><p>Profil et parcours du joueur</p></div></div>${buildBio(d||{},p)}</div><div class="nhl-player-pane" data-player-pane="games" hidden><p class="nhl-player-note">Journal actualisé : ${esc(logCollected)} · Saison ${formatSeasonYears(season)}</p>${gamesPane(log,goalie)}</div><div class="nhl-player-pane" data-player-pane="career" hidden><p class="nhl-player-note">Fiche actualisée : ${esc(collected)}</p><div class="nhl-pane-heading"><span class="nhl-pane-icon">🏆</span><div><h3>Statistiques en carrière</h3><p>Totaux de saison régulière et séries éliminatoires</p></div></div>${career(d||{},goalie)}</div>`;
+  container.innerHTML=`<div class="nhl-player-tabs" role="tablist" aria-label="Fiche du joueur">${tabs.map(([k,t],i)=>`<button type="button" data-player-tab="${k}" class="${i===0?'active':''}" aria-selected="${i===0}">${t}</button>`).join('')}</div><div class="nhl-player-pane nhl-stats-pane" data-player-pane="stats"><div class="nhl-pane-heading"><span class="nhl-pane-icon">📊</span><div><h3>Statistiques du joueur</h3><p>Performance et indicateurs de la saison</p></div></div><div class="nhl-stats-content">${existing}</div></div><div class="nhl-player-pane" data-player-pane="bio" hidden><div class="nhl-pane-heading"><span class="nhl-pane-icon">👤</span><div><h3>Biographie</h3><p>Profil et parcours du joueur</p></div></div>${buildBio(d||{},p)}</div><div class="nhl-player-pane" data-player-pane="games" hidden><p class="nhl-player-note">Journal actualisé : ${esc(logCollected)}${esc(logSource)} · Saison ${formatSeasonYears(season)}</p>${gamesPane(log,goalie)}</div><div class="nhl-player-pane" data-player-pane="career" hidden><p class="nhl-player-note">Fiche actualisée : ${esc(collected)}${esc(careerSource)}</p><div class="nhl-pane-heading"><span class="nhl-pane-icon">🏆</span><div><h3>Statistiques en carrière</h3><p>Totaux de saison régulière et séries éliminatoires</p></div></div>${career(d||{},goalie)}</div>`;
   container.querySelectorAll('[data-player-tab]').forEach(btn=>btn.addEventListener('click',()=>{const k=btn.dataset.playerTab;container.querySelectorAll('[data-player-tab]').forEach(b=>{const active=b.dataset.playerTab===k;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});container.querySelectorAll('[data-player-pane]').forEach(pane=>pane.hidden=pane.dataset.playerPane!==k)}));
  }
  function wrap(fnName,goalie,target){const original=window[fnName];if(typeof original!=='function')return;window[fnName]=async function(id,...args){await original.call(this,id,...args);const container=document.getElementById(target);if(container&&Number.isFinite(Number(id)))await addTabs(Number(id),container,goalie)};}
