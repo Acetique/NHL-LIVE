@@ -1320,26 +1320,40 @@ function renderLeagueGoalieList(){
 async function loadLeagueGoalieList(){
  const status=$('leagueGoalieStatus');
  status.textContent='Chargement des gardiens des 32 équipes…';
- let collected=[];
- const parse=(d,code)=>{const arr=Array.isArray(d)?d:(d.goalies||d.players||d.data||[]);return Array.isArray(arr)?arr.map(p=>({...p,teamAbbrev:goalieTeamCode(p)||code})):[];};
- for(const path of ['/league/goalies','/league/goalie-stats','/league/goalie-leaders','/league/goalieStats']){
-  try{const d=await get(path);const arr=parse(d,'');if(arr.length){collected.push(...arr);break;}}catch(e){}
- }
- const teams=Object.keys(TEAM_FULL_NAMES);
- const present=new Set(collected.map(goalieTeamCode));
- const missing=teams.filter(c=>!present.has(c));
- // Les fichiers générés par GitHub Actions sont prioritaires; tenter l'API officielle
- // uniquement pour les équipes dont le fichier n'existe pas.
- const results=await Promise.allSettled(missing.map(async code=>{
-  try{return parse(await get(`/club-stats/${code}/now`),code);}
-  catch(e){
-   const url=`https://api-web.nhle.com/v1/club-stats/${code}/now`;
-   const response=await fetch(url,{cache:'no-store'});
+ const parse=(d,code='')=>{
+  const arr=Array.isArray(d)?d:(d?.goalies||d?.players||d?.data||[]);
+  return Array.isArray(arr)?arr.map(p=>({...p,teamAbbrev:goalieTeamCode(p)||code})):[];
+ };
+ let collected=[],source='';
+ // La collecte officielle du dépôt NHL-LIVE est prioritaire, même si la page
+ // est encore hébergée sous l'ancien dépôt Canadiens-de-Montreal.
+ const sources=[
+  'https://acetique.github.io/NHL-LIVE/data/league/goalies.json',
+  new URL('./data/league/goalies.json',document.baseURI).href
+ ];
+ for(const url of [...new Set(sources)]){
+  try{
+   const response=await fetch(url+(url.includes('?')?'&':'?')+'ts='+Date.now(),{cache:'no-store'});
    if(!response.ok)throw Error('HTTP '+response.status);
-   return parse(await response.json(),code);
-  }
- }));
- results.forEach(r=>{if(r.status==='fulfilled')collected.push(...r.value);});
+   const payload=await response.json();
+   const arr=parse(payload);
+   if(!arr.length)throw Error('Aucun gardien dans le fichier');
+   collected=arr;source=url;break;
+  }catch(err){console.warn('Collecte des gardiens indisponible :',url,err);}
+ }
+ // Repli uniquement si aucun fichier global n'est accessible.
+ if(!collected.length){
+  const teams=Object.keys(TEAM_FULL_NAMES);
+  const results=await Promise.allSettled(teams.map(async code=>{
+   try{return parse(await get(`/club-stats/${code}/now`),code);}
+   catch(e){
+    const response=await fetch(`https://api-web.nhle.com/v1/club-stats/${code}/now`,{cache:'no-store'});
+    if(!response.ok)throw Error('HTTP '+response.status);
+    return parse(await response.json(),code);
+   }
+  }));
+  results.forEach(r=>{if(r.status==='fulfilled')collected.push(...r.value);});
+ }
  const unique=new Map();
  for(const p of collected){
   const id=Number(p.playerId||p.id);
@@ -1351,7 +1365,8 @@ async function loadLeagueGoalieList(){
  leagueGoalieList=[...unique.values()];
  const codes=[...new Set(leagueGoalieList.map(goalieTeamCode).filter(Boolean))].sort();
  $('leagueGoalieTeam').innerHTML='<option value="">Toutes les équipes</option>'+codes.map(c=>`<option value="${safe(c)}">${safe(TEAM_FULL_NAMES[c]||c)}</option>`).join('');
- status.textContent=leagueGoalieList.length?`${leagueGoalieList.length} gardiens · ${codes.length} / 32 équipes${codes.length<32?' · Certaines équipes ne sont pas accessibles; compléter la collecte GitHub pour une couverture totale.':''}`:'Aucune donnée disponible : publier les fichiers des 32 clubs via GitHub Actions. Les accès directs à la LNH peuvent être bloqués par le navigateur.';
+ status.textContent=leagueGoalieList.length?`${leagueGoalieList.length} gardiens · ${codes.length} / 32 équipes`:'Impossible de charger les gardiens. Vérifier data/league/goalies.json et la console du navigateur.';
+ if(source)console.info('Gardiens LNH chargés depuis',source,leagueGoalieList.length);
  renderLeagueGoalieList();
 }
 
