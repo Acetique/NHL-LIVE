@@ -1533,4 +1533,43 @@ loadLeagueGoalieList();
 .nhl-player-pane .tablewrap th,.nhl-player-pane .tablewrap td{text-align:center}
 .nhl-player-pane[data-player-pane="career"]>h3{text-align:center;border-left:0;border-bottom:3px solid #e22a49;border-radius:9px}
 .nhl-player-pane .nhl-player-note{text-align:center}
+
+/* V97 — refonte visuelle des fiches individuelles : statistiques, biographie, carrière. */
+#profilecontent .nhl-player-tabs,
+#detailContent .nhl-player-tabs{background:linear-gradient(135deg,#0a1b30,#102b47);padding:9px;border:1px solid #294c71;border-radius:16px;box-shadow:0 8px 25px #0003;gap:8px}
+.nhl-player-tabs button{flex:1 1 120px;border-radius:11px!important;letter-spacing:.025em;transition:background .18s,border-color .18s,transform .18s}
+.nhl-player-tabs button:hover{background:#214769;border-color:#5b89b4;transform:translateY(-1px)}
+.nhl-player-tabs button.active{background:linear-gradient(125deg,#086cc4,#0b92e0)!important;border-color:#4bb8ff!important;color:#fff;box-shadow:0 4px 14px #007bd055}
+.nhl-player-pane[data-player-pane="stats"],.nhl-player-pane[data-player-pane="bio"],.nhl-player-pane[data-player-pane="career"]{padding:7px 3px 12px}
+.nhl-player-pane .metric{position:relative;isolation:isolate;background:linear-gradient(155deg,#173854 0%,#0d253c 65%,#091d32 100%);border:1px solid #35658c;border-radius:15px;box-shadow:inset 0 1px #ffffff10,0 8px 18px #0003;transition:transform .18s,border-color .18s,box-shadow .18s}
+.nhl-player-pane .metric::before{content:"";position:absolute;left:14%;right:14%;top:0;height:2px;background:linear-gradient(90deg,transparent,#32b6fa70,transparent)}
+.nhl-player-pane .metric:hover{border-color:#5eabda;box-shadow:0 9px 25px #0005;transform:translateY(-2px)}
+.nhl-player-pane .metric .muted{color:#a9c8e4;font-size:11px;font-weight:750;letter-spacing:.045em;text-transform:uppercase}
+.nhl-player-pane .metric strong{color:#f6fbff;font-weight:850;letter-spacing:-.025em;font-size:clamp(19px,2.1vw,29px)}
+.nhl-player-pane[data-player-pane="stats"] .metric:nth-child(4),
+.nhl-player-pane[data-player-pane="career"] .metrics .metric:nth-child(4){border-color:#168ce7;background:linear-gradient(155deg,#11518c,#0b2d50);box-shadow:inset 0 1px #ffffff20,0 7px 22px #005ba63d}
+.nhl-player-pane[data-player-pane="bio"] .metric strong{font-size:clamp(16px,1.7vw,23px);overflow-wrap:anywhere}
+.nhl-player-pane[data-player-pane="career"]>h3{background:linear-gradient(100deg,#123b5b,#0c2238);border:1px solid #315d7c;border-bottom:3px solid #27a2e6;border-radius:12px;padding:12px 14px;margin:22px 0 14px;font-weight:850;letter-spacing:.035em}
+.nhl-player-pane[data-player-pane="career"]>.tablewrap{border:1px solid #325879;border-radius:14px;overflow-x:auto;box-shadow:0 10px 22px #0003}
+.nhl-player-pane[data-player-pane="career"]>.tablewrap table{width:100%;border-collapse:separate;border-spacing:0}
+.nhl-player-pane[data-player-pane="career"]>.tablewrap th{background:#143c60;color:#dff2ff;font-weight:800;letter-spacing:.035em}
+.nhl-player-pane[data-player-pane="career"]>.tablewrap tbody tr:nth-child(odd){background:#102b44}
+.nhl-player-pane[data-player-pane="career"]>.tablewrap tbody tr:nth-child(even){background:#0c2136}
+.nhl-player-pane[data-player-pane="career"]>.tablewrap tbody tr:hover{background:#184a70}
+.nhl-player-pane[data-player-pane="career"]>.tablewrap tbody tr:first-child{background:#124777;font-weight:750}
+@media(min-width:801px){
+ .nhl-player-pane[data-player-pane="stats"] .metrics,
+ .nhl-player-pane[data-player-pane="bio"] .nhl-bio,
+ .nhl-player-pane[data-player-pane="career"] .metrics{grid-template-columns:repeat(4,minmax(0,1fr));gap:13px}
+ .nhl-player-pane .metric{min-height:100px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:9px;padding:18px 12px}
+ .nhl-player-pane[data-player-pane="bio"] .metric{min-height:105px}
+}
+@media(max-width:800px){.nhl-player-pane .metric:hover{transform:none}.nhl-player-tabs button:hover{transform:none}}
+@media(max-width:600px){
+ .nhl-player-tabs{padding:5px!important;gap:5px!important}
+ .nhl-player-tabs button{flex:1 1 auto;min-height:38px;padding:8px 6px!important;font-size:11px!important}
+ .nhl-player-pane .metric{padding:12px 9px;min-height:75px}
+ .nhl-player-pane .metric strong{font-size:19px}
+ .nhl-player-pane[data-player-pane="bio"] .metric strong{font-size:17px}
+}
 </style></body></html>
