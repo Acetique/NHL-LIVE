@@ -1486,7 +1486,7 @@ loadLeagueGoalieList();
   const log=await freshPlayerData(`/player/${id}/game-log/${season}/2`);if(token!==request||!container.isConnected)return;
   const tabs=[['stats','Statistiques'],['bio','Biographie'],['games','Match par match'],['career','Carrière']];const collected=(d?._live_fetched_at||d?._collected_at)?new Date(d._live_fetched_at||d._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';const logCollected=(log?._live_fetched_at||log?._collected_at)?new Date(log._live_fetched_at||log._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';const careerSource=d?._cache_fallback?' · Cache GitHub (API LNH indisponible)':' · API LNH directe';const logSource=log?._cache_fallback?' · Cache GitHub (API LNH indisponible)':' · API LNH directe';
   const existing=container.innerHTML;
-  container.innerHTML=`<div class="nhl-player-tabs" role="tablist" aria-label="Fiche du joueur">${tabs.map(([k,t],i)=>`<button type="button" data-player-tab="${k}" class="${i===0?'active':''}" aria-selected="${i===0}">${t}</button>`).join('')}</div><div class="nhl-player-pane nhl-stats-pane" data-player-pane="stats"><div class="nhl-pane-heading"><span class="nhl-pane-icon">📊</span><div><h3>Statistiques du joueur</h3><p>Performance et indicateurs de la saison</p></div></div><div class="nhl-stats-content">${existing}</div></div><div class="nhl-player-pane" data-player-pane="bio" hidden><div class="nhl-pane-heading"><span class="nhl-pane-icon">👤</span><div><h3>Biographie</h3><p>Profil et parcours du joueur</p></div></div>${buildBio(d||{},p)}</div><div class="nhl-player-pane" data-player-pane="games" hidden>${gamesPane(log,goalie)}</div><div class="nhl-player-pane" data-player-pane="career" hidden><p class="nhl-player-note">Fiche actualisée : ${esc(collected)}${esc(careerSource)}</p><div class="nhl-pane-heading"><span class="nhl-pane-icon">🏆</span><div><h3>Statistiques en carrière</h3><p>Totaux de saison régulière et séries éliminatoires</p></div></div>${career(d||{},goalie)}</div>`;
+  container.innerHTML=`<div class="nhl-player-tabs" role="tablist" aria-label="Fiche du joueur">${tabs.map(([k,t],i)=>`<button type="button" data-player-tab="${k}" class="${i===0?'active':''}" aria-selected="${i===0}">${t}</button>`).join('')}</div><div class="nhl-player-pane nhl-stats-pane" data-player-pane="stats"><div class="nhl-stats-content">${existing}</div></div><div class="nhl-player-pane" data-player-pane="bio" hidden>${buildBio(d||{},p)}</div><div class="nhl-player-pane" data-player-pane="games" hidden>${gamesPane(log,goalie)}</div><div class="nhl-player-pane" data-player-pane="career" hidden><p class="nhl-player-note">Fiche actualisée : ${esc(collected)}${esc(careerSource)}</p>${career(d||{},goalie)}</div>`;
   container.querySelectorAll('[data-player-tab]').forEach(btn=>btn.addEventListener('click',()=>{const k=btn.dataset.playerTab;container.querySelectorAll('[data-player-tab]').forEach(b=>{const active=b.dataset.playerTab===k;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});container.querySelectorAll('[data-player-pane]').forEach(pane=>pane.hidden=pane.dataset.playerPane!==k)}));
  }
  function wrap(fnName,goalie,target){const original=window[fnName];if(typeof original!=='function')return;window[fnName]=async function(id,...args){await original.call(this,id,...args);const container=document.getElementById(target);if(container&&Number.isFinite(Number(id)))await addTabs(Number(id),container,goalie)};}
@@ -1525,4 +1525,15 @@ loadLeagueGoalieList();
   .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric:first-child strong{font-size:25px}
   .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric:last-child{grid-column:span 2;background:linear-gradient(115deg,#203e5e,#122943)}
 }
+
+/* V94 : alignement centré des quatre onglets individuels. */
+.nhl-player-tabs{justify-content:center;text-align:center}
+.nhl-player-pane{text-align:center}
+.nhl-player-pane .nhl-pane-heading{justify-content:center;text-align:center}
+.nhl-player-pane .nhl-pane-heading>div{text-align:center}
+.nhl-player-pane .metrics .metric,.nhl-player-pane .nhl-bio .metric{text-align:center;align-items:center}
+.nhl-player-pane .metric .muted,.nhl-player-pane .metric strong{text-align:center}
+.nhl-player-pane .tablewrap th,.nhl-player-pane .tablewrap td{text-align:center}
+.nhl-player-pane[data-player-pane="career"]>h3{text-align:center;border-left:0;border-bottom:3px solid #e22a49;border-radius:9px}
+.nhl-player-pane .nhl-player-note{text-align:center}
 </style></body></html>
