@@ -28,8 +28,40 @@ def save(path, value):
 
 def fetch_and_save(path):
     value=download(path)
+    # L'horodatage est dans le JSON : GitHub Actions réinitialise les dates des fichiers.
+    if path.startswith('/player/') and isinstance(value, dict):
+        value['_collected_at'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
     save(path,value)
     return value
+
+def cache_age_seconds(path):
+    """Retourne l'âge réel d'une fiche, indépendant du checkout GitHub."""
+    target=DEST/(path.lstrip('/')+'.json')
+    if not target.exists(): return float('inf')
+    try:
+        obj=json.loads(target.read_text(encoding='utf-8'))
+        stamp=obj.get('_collected_at')
+        if not stamp: return float('inf')  # ancienne fiche : rafraîchir au moins une fois
+        dt=datetime.datetime.fromisoformat(stamp.replace('Z','+00:00'))
+        return max(0,(datetime.datetime.now(datetime.timezone.utc)-dt).total_seconds())
+    except (ValueError,TypeError,OSError,AttributeError):
+        return float('inf')
+
+def refresh_player_batch(paths, max_items=120, workers=6, label='fiche'):
+    # Plus anciennes d'abord : chaque exécution avance dans l'ensemble des joueurs.
+    unique=list(dict.fromkeys(paths))
+    pending=sorted(((cache_age_seconds(rel),rel) for rel in unique),reverse=True)
+    selected=[rel for age,rel in pending if age >= (6*3600 if 'game-log' in rel else 24*3600)][:max_items]
+    failures=[]
+    with ThreadPoolExecutor(max_workers=workers) as pool:
+        jobs={pool.submit(fetch_and_save,rel):rel for rel in selected}
+        for job in as_completed(jobs):
+            try: job.result()
+            except Exception as exc:
+                failures.append(jobs[job])
+                print('AVERTISSEMENT',label,jobs[job],exc,flush=True)
+    print(f'{label}: {len(selected)-len(failures)}/{len(selected)} actualisées; {len(pending)} vérifiées.',flush=True)
+    return len(selected),failures
 
 results={}
 for key,path in [('schedule','/club-schedule-season/MTL/now'),('stats','/club-stats/MTL/now'),('standings','/standings/now')]:
@@ -236,28 +268,11 @@ if all_players:
     save('/league/skaters',{'season':season,'players':list(all_players.values()),'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
     print('Statistiques LNH :',len(all_players),'joueurs.',flush=True)
 
-# Préparer les journaux pour le comparateur de toute la LNH, en lots.
-# Les 120 joueurs prioritaires (par points) sont traités d'abord; les autres
-# sont ajoutés progressivement aux exécutions suivantes, sans dépasser 120/run.
+# Rafraîchir les journaux de tous les joueurs par rotation, y compris ceux déjà créés.
+# Le quota limite les requêtes par exécution sans bloquer indéfiniment les mêmes joueurs.
 ordered=sorted(all_players.values(),key=lambda p:p.get('points') or 0,reverse=True)
-missing=[]
-for p in ordered:
-    pid=p['playerId']
-    rel=f'/player/{pid}/game-log/{season}/2'
-    dest=DEST/(rel.lstrip('/')+'.json')
-    if not dest.exists(): missing.append(rel)
-# Rafraîchir aussi les 40 premiers joueurs lorsque le cache date de > 1 jour.
-for p in ordered[:40]:
-    rel=f'/player/{p["playerId"]}/game-log/{season}/2'
-    dest=DEST/(rel.lstrip('/')+'.json')
-    if dest.exists() and time.time()-dest.stat().st_mtime>86400 and rel not in missing:
-        missing.append(rel)
-with ThreadPoolExecutor(max_workers=6) as pool:
-    jobs={pool.submit(fetch_and_save,path):path for path in missing[:120]}
-    for job in as_completed(jobs):
-        try:job.result()
-        except Exception as exc:print('AVERTISSEMENT journal LNH',exc,flush=True)
-print('Journaux joueurs LNH :',min(len(missing),120),'demandés.',flush=True)
+log_paths=[f'/player/{p["playerId"]}/game-log/{season}/2' for p in ordered]
+log_requested,log_failures=refresh_player_batch(log_paths,120,6,'Journaux joueurs LNH')
 
 # Détails des rencontres du jour, toutes équipes : éviter les 404 après
 # la première collecte et réactualiser les rencontres en cours.
@@ -278,16 +293,9 @@ meta_file=DEST/'metadata.json'
 meta=json.loads(meta_file.read_text(encoding='utf-8')) if meta_file.exists() else {}
 meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'league_players':len(all_players),'version':'9'})
 save('/metadata',meta)
-# Fiches avancées (dont temps de glace moyen) mises en cache progressivement.
-landing_missing=[]
-for p in ordered:
-    rel=f'/player/{p["playerId"]}/landing'
-    if not (DEST/(rel.lstrip('/')+'.json')).exists(): landing_missing.append(rel)
-with ThreadPoolExecutor(max_workers=6) as pool:
-    jobs={pool.submit(fetch_and_save,path):path for path in landing_missing[:120]}
-    for job in as_completed(jobs):
-        try:job.result()
-        except Exception as exc:print('AVERTISSEMENT fiche LNH',exc,flush=True)
+# Actualiser également les fiches existantes (pas uniquement les nouvelles).
+landing_paths=[f'/player/{p["playerId"]}/landing' for p in ordered]
+landing_requested,landing_failures=refresh_player_batch(landing_paths,120,6,'Fiches avancées LNH')
 # Fusionner les valeurs avancées disponibles dans le tableau global.
 for p in all_players.values():
     f=DEST/'player'/str(p['playerId'])/'landing.json'
@@ -301,7 +309,7 @@ for p in all_players.values():
     except (OSError,ValueError):pass
 if all_players:
     save('/league/skaters',{'season':season,'players':list(all_players.values()),'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
-print('Fiches avancées :',min(len(landing_missing),120),'demandées.',flush=True)
+print('Fiches avancées :',landing_requested,'demandées.',flush=True)
 
 # V10 : classement complet depuis les fiches statistiques des 32 clubs.
 # Contrairement à /skater-stats-leaders, cette source contient MJ, B, A et PTS.
@@ -310,6 +318,6 @@ if all_players:
     save('/league/top-scorers',{'season':season,'players':[{'playerId':p.get('playerId'),'name':p.get('name'),'teamAbbrev':p.get('teamAbbrev'),'gamesPlayed':p.get('gamesPlayed'),'goals':p.get('goals'),'assists':p.get('assists'),'points':p.get('points')} for p in ranked[:100]],'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
 meta_file=DEST/'metadata.json'
 meta=json.loads(meta_file.read_text(encoding='utf-8')) if meta_file.exists() else {}
-meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'version':'10.2'})
+meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'player_logs_requested':log_requested,'player_logs_failed':len(log_failures),'player_landings_requested':landing_requested,'player_landings_failed':len(landing_failures),'failed_teams':failed_teams,'version':'10.3'})
 save('/metadata',meta)
 print('V10 :',len(all_players),'joueurs LNH,',meta['league_teams'],'équipes, classement complet généré.',flush=True)
