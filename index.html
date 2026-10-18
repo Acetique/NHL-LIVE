@@ -1486,7 +1486,7 @@ loadLeagueGoalieList();
   const log=await freshPlayerData(`/player/${id}/game-log/${season}/2`);if(token!==request||!container.isConnected)return;
   const tabs=[['stats','Statistiques'],['bio','Biographie'],['games','Match par match'],['career','Carrière']];const collected=(d?._live_fetched_at||d?._collected_at)?new Date(d._live_fetched_at||d._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';const logCollected=(log?._live_fetched_at||log?._collected_at)?new Date(log._live_fetched_at||log._collected_at).toLocaleString('fr-CA',{timeZone:'America/Toronto'}):'date inconnue';const careerSource=d?._cache_fallback?' · Cache GitHub (API LNH indisponible)':' · API LNH directe';const logSource=log?._cache_fallback?' · Cache GitHub (API LNH indisponible)':' · API LNH directe';
   const existing=container.innerHTML;
-  container.innerHTML=`<div class="nhl-player-tabs" role="tablist" aria-label="Fiche du joueur">${tabs.map(([k,t],i)=>`<button type="button" data-player-tab="${k}" class="${i===0?'active':''}" aria-selected="${i===0}">${t}</button>`).join('')}</div><div class="nhl-player-pane nhl-stats-pane" data-player-pane="stats"><div class="nhl-stats-content">${existing}</div></div><div class="nhl-player-pane" data-player-pane="bio" hidden>${buildBio(d||{},p)}</div><div class="nhl-player-pane" data-player-pane="games" hidden>${gamesPane(log,goalie)}</div><div class="nhl-player-pane" data-player-pane="career" hidden><p class="nhl-player-note">Fiche actualisée : ${esc(collected)}${esc(careerSource)}</p>${career(d||{},goalie)}</div>`;
+  container.innerHTML=`<div class="nhl-player-tabs" role="tablist" aria-label="Fiche du joueur">${tabs.map(([k,t],i)=>`<button type="button" data-player-tab="${k}" class="${i===0?'active':''}" aria-selected="${i===0}">${t}</button>`).join('')}</div><div class="nhl-player-pane nhl-stats-pane" data-player-pane="stats"><div class="nhl-stats-content">${existing}</div></div><div class="nhl-player-pane" data-player-pane="bio" hidden>${buildBio(d||{},p)}</div><div class="nhl-player-pane" data-player-pane="games" hidden>${gamesPane(log,goalie)}</div><div class="nhl-player-pane" data-player-pane="career" hidden>${career(d||{},goalie)}</div>`;
   container.querySelectorAll('[data-player-tab]').forEach(btn=>btn.addEventListener('click',()=>{const k=btn.dataset.playerTab;container.querySelectorAll('[data-player-tab]').forEach(b=>{const active=b.dataset.playerTab===k;b.classList.toggle('active',active);b.setAttribute('aria-selected',String(active))});container.querySelectorAll('[data-player-pane]').forEach(pane=>pane.hidden=pane.dataset.playerPane!==k)}));
  }
  function wrap(fnName,goalie,target){const original=window[fnName];if(typeof original!=='function')return;window[fnName]=async function(id,...args){await original.call(this,id,...args);const container=document.getElementById(target);if(container&&Number.isFinite(Number(id)))await addTabs(Number(id),container,goalie)};}
@@ -1511,19 +1511,16 @@ loadLeagueGoalieList();
 .nhl-stats-content>.metrics{margin-top:12px}
 @media(max-width:600px){.nhl-player-pane .metrics,.nhl-player-pane .nhl-bio{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.nhl-player-pane .metric{padding:12px 10px}.nhl-pane-heading{padding:12px;gap:9px}.nhl-pane-heading h3{font-size:16px}.nhl-player-tabs button{flex:1 1 auto;padding:9px 8px;font-size:11px}}
 
-/* V93 : biographie enrichie sur ordinateur seulement. Aucun changement <=750px. */
-@media (min-width:751px){
-  .nhl-player-pane[data-player-pane="bio"] .nhl-pane-heading{padding:21px 24px;margin-bottom:23px;background:linear-gradient(110deg,#1c3a5b,#10243b 75%);border-color:#426287}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-pane-heading h3{font-size:22px;letter-spacing:.2px}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-pane-heading p{font-size:13px}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-pane-icon{width:54px;height:54px;font-size:27px;border-radius:15px}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-bio{grid-template-columns:repeat(4,minmax(0,1fr));gap:15px;margin:0 0 22px}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric{padding:21px 19px;min-height:104px;border-radius:16px;background:linear-gradient(145deg,#1b3755,#10243d);border:1px solid #395676;box-shadow:0 8px 22px #00000020;display:flex;flex-direction:column;justify-content:center;gap:7px}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric .muted{font-size:11px;text-transform:uppercase;letter-spacing:.8px;color:#a9c4e3}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric strong{font-size:20px;line-height:1.25;letter-spacing:.1px}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric:first-child{grid-column:span 2;background:linear-gradient(115deg,#24496b,#132d49);border-color:#547ba1}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric:first-child strong{font-size:25px}
-  .nhl-player-pane[data-player-pane="bio"] .nhl-bio .metric:last-child{grid-column:span 2;background:linear-gradient(115deg,#203e5e,#122943)}
+/* V96 : biographie utilise les mêmes cartes et la même grille que Statistiques. */
+.nhl-player-pane[data-player-pane="bio"] .nhl-bio{
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:11px;
+  margin:14px 0 22px;
+}
+@media(max-width:600px){
+  .nhl-player-pane[data-player-pane="bio"] .nhl-bio{
+    grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;
+  }
 }
 
 /* V94 : alignement centré des quatre onglets individuels. */
