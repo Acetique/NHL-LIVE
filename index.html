@@ -625,13 +625,13 @@ async function showCHMatch(id,button){
  if(button){button.setAttribute('aria-expanded',String(opening));button.textContent=opening?'Masquer les détails':'Détails du match';}
  if(opening)await renderMatchDetails(id,node);
 }
+// V60 : ouvrir les statistiques dans une fenêtre dédiée plutôt que sous la liste
+// des matchs (où elles pouvaient sembler rattachées à la rencontre suivante).
 async function showMatch(id){
- const node=$('match-'+id);if(!node)return;
- const opening=node.classList.contains('hide');
- node.classList.toggle('hide',!opening);
- const button=document.querySelector(`.match-details[data-game="${id}"]`);
- if(button){button.setAttribute('aria-expanded',String(opening));button.textContent=opening?'Masquer les détails':'Détails du match';}
- if(opening)await renderMatchDetails(id,node);
+ const match=window.currentLeagueGames?.find(g=>Number(g.id)===Number(id));
+ const away=abbr(match?.awayTeam),home=abbr(match?.homeTeam);
+ openDetail(`<h2>Statistiques du match${match?' · '+safe(away)+' – '+safe(home):''}</h2><div class="empty">Chargement des statistiques du match…</div>`);
+ await renderMatchDetails(id,$('detailContent'));
 }
 async function renderMatchDetails(id,node){
  node.innerHTML='<div class="empty">Chargement des statistiques du match…</div>';
