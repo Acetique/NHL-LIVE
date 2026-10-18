@@ -197,7 +197,18 @@ with ThreadPoolExecutor(max_workers=5) as pool:
                 item['name']=localized_name(p.get('firstName'))+' '+localized_name(p.get('lastName'))
                 item['teamAbbrev']=code
                 all_players[str(pid)]=item
+            # Les gardiens sont inclus dans la même réponse /club-stats/{code}/now.
+            # Les enregistrer explicitement dans la liste globale du championnat.
+            for p in team.get('goalies',[]):
+                pid=p.get('playerId')
+                if not pid: continue
+                item=dict(p)
+                item['name']=(localized_name(p.get('firstName'))+' '+localized_name(p.get('lastName'))).strip()
+                item['teamAbbrev']=code
+                all_goalies[str(pid)]=item
+            collected_teams.add(code)
         except Exception as exc:
+            failed_teams.append(code)
             print('AVERTISSEMENT équipe',code,exc,flush=True)
 # Les gardiens sont publiés dans un fichier unique lu directement par NHL LIVE.
 # Conserver les anciens gardiens des équipes en échec pour éviter de vider le tableau.
@@ -299,6 +310,6 @@ if all_players:
     save('/league/top-scorers',{'season':season,'players':[{'playerId':p.get('playerId'),'name':p.get('name'),'teamAbbrev':p.get('teamAbbrev'),'gamesPlayed':p.get('gamesPlayed'),'goals':p.get('goals'),'assists':p.get('assists'),'points':p.get('points')} for p in ranked[:100]],'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
 meta_file=DEST/'metadata.json'
 meta=json.loads(meta_file.read_text(encoding='utf-8')) if meta_file.exists() else {}
-meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'version':'10.1'})
+meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'version':'10.2'})
 save('/metadata',meta)
 print('V10 :',len(all_players),'joueurs LNH,',meta['league_teams'],'équipes, classement complet généré.',flush=True)
