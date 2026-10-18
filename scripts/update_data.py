@@ -179,6 +179,9 @@ team_codes=sorted(set(team_codes)|set(known_teams))
 if not team_codes:
     team_codes=['ANA','BOS','BUF','CAR','CBJ','CGY','CHI','COL','DAL','DET','EDM','FLA','LAK','MIN','MTL','NJD','NSH','NYI','NYR','OTT','PHI','PIT','SEA','SJS','STL','TBL','TOR','UTA','VAN','VGK','WPG','WSH']
 all_players={}
+all_goalies={}
+collected_teams=set()
+failed_teams=[]
 def fetch_team(code):
     return code,download('/club-stats/'+code+'/now')
 with ThreadPoolExecutor(max_workers=5) as pool:
@@ -196,6 +199,28 @@ with ThreadPoolExecutor(max_workers=5) as pool:
                 all_players[str(pid)]=item
         except Exception as exc:
             print('AVERTISSEMENT équipe',code,exc,flush=True)
+# Les gardiens sont publiés dans un fichier unique lu directement par NHL LIVE.
+# Conserver les anciens gardiens des équipes en échec pour éviter de vider le tableau.
+previous_goalies_file=DEST/'league'/'goalies.json'
+if previous_goalies_file.exists():
+    try:
+        previous=json.loads(previous_goalies_file.read_text(encoding='utf-8'))
+        for old in previous.get('goalies',[]):
+            code=str(old.get('teamAbbrev') or '')
+            pid=old.get('playerId')
+            if pid and code not in collected_teams and str(pid) not in all_goalies:
+                all_goalies[str(pid)]=old
+    except (OSError,ValueError,TypeError) as exc:
+        print('AVERTISSEMENT anciens gardiens',exc,flush=True)
+if all_goalies:
+    save('/league/goalies',{'season':season,'goalies':list(all_goalies.values()),
+        'teams_collected':len(collected_teams),'failed_teams':failed_teams,
+        'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
+    print('Gardiens LNH :',len(all_goalies),'gardiens,',len(collected_teams),
+          'équipes collectées,',len(failed_teams),'échecs.',flush=True)
+else:
+    print('AVERTISSEMENT : aucun gardien reçu, ancien fichier conservé.',flush=True)
+
 if all_players:
     save('/league/skaters',{'season':season,'players':list(all_players.values()),'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
     print('Statistiques LNH :',len(all_players),'joueurs.',flush=True)
@@ -274,6 +299,6 @@ if all_players:
     save('/league/top-scorers',{'season':season,'players':[{'playerId':p.get('playerId'),'name':p.get('name'),'teamAbbrev':p.get('teamAbbrev'),'gamesPlayed':p.get('gamesPlayed'),'goals':p.get('goals'),'assists':p.get('assists'),'points':p.get('points')} for p in ranked[:100]],'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
 meta_file=DEST/'metadata.json'
 meta=json.loads(meta_file.read_text(encoding='utf-8')) if meta_file.exists() else {}
-meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'version':'10'})
+meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'version':'10.1'})
 save('/metadata',meta)
 print('V10 :',len(all_players),'joueurs LNH,',meta['league_teams'],'équipes, classement complet généré.',flush=True)
