@@ -47,11 +47,38 @@ def cache_age_seconds(path):
     except (ValueError,TypeError,OSError,AttributeError):
         return float('inf')
 
-def refresh_player_batch(paths, max_items=120, workers=6, label='fiche'):
-    # Plus anciennes d'abord : chaque exécution avance dans l'ensemble des joueurs.
+def season_totals_changed(player, kind):
+    """Compare le résumé du club à la fiche mise en cache, sans requête réseau."""
+    pid=player.get('playerId')
+    if not pid: return False
+    file=DEST/'player'/str(pid)/'landing.json'
+    if not file.exists(): return True
+    try:
+        landing=json.loads(file.read_text(encoding='utf-8'))
+        featured=landing.get('featuredStats',{}).get('regularSeason',{}).get('subSeason',{})
+        if not featured: return False  # ne pas créer une boucle de requêtes sur données absentes
+        keys=('gamesPlayed','wins','losses','shutouts') if kind=='goalie' else ('gamesPlayed','goals','assists','points')
+        for key in keys:
+            if player.get(key) is not None and featured.get(key) is not None:
+                if str(player[key]) != str(featured[key]): return True
+    except (ValueError,OSError,TypeError,AttributeError):
+        return True
+    return False
+
+def refresh_player_batch(paths, max_items=120, workers=6, label='fiche',
+                         threshold_hours=6, priority_paths=()):
+    """Priorité aux statistiques modifiées, puis aux fichiers les plus anciens.
+    Les éléments non échus ne sont pas redemandés; limite stricte par collecte.
+    """
     unique=list(dict.fromkeys(paths))
-    pending=sorted(((cache_age_seconds(rel),rel) for rel in unique),reverse=True)
-    selected=[rel for age,rel in pending if age >= (6*3600 if 'game-log' in rel else 24*3600)][:max_items]
+    priority=set(priority_paths)
+    candidates=[]
+    for rel in unique:
+        age=cache_age_seconds(rel)
+        if rel in priority or age >= threshold_hours*3600:
+            candidates.append((rel not in priority, -age, rel))
+    candidates.sort()
+    selected=[rel for _,_,rel in candidates[:max_items]]
     failures=[]
     with ThreadPoolExecutor(max_workers=workers) as pool:
         jobs={pool.submit(fetch_and_save,rel):rel for rel in selected}
@@ -60,7 +87,8 @@ def refresh_player_batch(paths, max_items=120, workers=6, label='fiche'):
             except Exception as exc:
                 failures.append(jobs[job])
                 print('AVERTISSEMENT',label,jobs[job],exc,flush=True)
-    print(f'{label}: {len(selected)-len(failures)}/{len(selected)} actualisées; {len(pending)} vérifiées.',flush=True)
+    print(f'{label}: {len(selected)-len(failures)}/{len(selected)} actualisées; '
+          f'{len(priority & set(selected))} prioritaires; {len(candidates)} éligibles.',flush=True)
     return len(selected),failures
 
 results={}
@@ -274,7 +302,7 @@ ordered=sorted(all_players.values(),key=lambda p:p.get('points') or 0,reverse=Tr
 # Inclure aussi les gardiens : leurs fiches utilisent les mêmes endpoints.
 profile_players=list({str(p['playerId']):p for p in [*ordered,*all_goalies.values()] if p.get('playerId')}.values())
 log_paths=[f'/player/{p["playerId"]}/game-log/{season}/2' for p in profile_players]
-log_requested,log_failures=refresh_player_batch(log_paths,120,6,'Journaux joueurs LNH')
+log_requested,log_failures=refresh_player_batch(log_paths,120,6,'Journaux joueurs LNH',threshold_hours=2)
 
 # Détails des rencontres du jour, toutes équipes : éviter les 404 après
 # la première collecte et réactualiser les rencontres en cours.
@@ -297,7 +325,17 @@ meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat
 save('/metadata',meta)
 # Actualiser également les fiches existantes (pas uniquement les nouvelles).
 landing_paths=[f'/player/{p["playerId"]}/landing' for p in profile_players]
-landing_requested,landing_failures=refresh_player_batch(landing_paths,120,6,'Fiches avancées LNH')
+# Les statistiques du club sont déjà téléchargées : comparer avant d'appeler l'API.
+# Les joueurs dont les totaux ont changé passent en priorité pour mettre à jour Carrière.
+changed_landing_paths=[]
+for p in profile_players:
+    kind='goalie' if str(p['playerId']) in all_goalies else 'skater'
+    if season_totals_changed(p,kind):
+        changed_landing_paths.append(f'/player/{p["playerId"]}/landing')
+landing_requested,landing_failures=refresh_player_batch(
+    landing_paths,120,6,'Fiches avancées LNH',threshold_hours=6,
+    priority_paths=changed_landing_paths)
+print('Fiches avec statistiques modifiées :',len(changed_landing_paths),flush=True)
 # Fusionner les valeurs avancées disponibles dans le tableau global.
 for p in all_players.values():
     f=DEST/'player'/str(p['playerId'])/'landing.json'
@@ -320,6 +358,6 @@ if all_players:
     save('/league/top-scorers',{'season':season,'players':[{'playerId':p.get('playerId'),'name':p.get('name'),'teamAbbrev':p.get('teamAbbrev'),'gamesPlayed':p.get('gamesPlayed'),'goals':p.get('goals'),'assists':p.get('assists'),'points':p.get('points')} for p in ranked[:100]],'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat()})
 meta_file=DEST/'metadata.json'
 meta=json.loads(meta_file.read_text(encoding='utf-8')) if meta_file.exists() else {}
-meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'player_logs_requested':log_requested,'player_logs_failed':len(log_failures),'player_landings_requested':landing_requested,'player_landings_failed':len(landing_failures),'failed_teams':failed_teams,'profile_players':len(profile_players),'version':'10.4'})
+meta.update({'updated_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'season':season,'league_players':len(all_players),'league_teams':len(set(p.get('teamAbbrev') for p in all_players.values())),'league_goalies':len(all_goalies),'goalie_teams_collected':len(collected_teams),'player_logs_requested':log_requested,'player_logs_failed':len(log_failures),'player_landings_requested':landing_requested,'player_landings_failed':len(landing_failures),'failed_teams':failed_teams,'profile_players':len(profile_players),'profiles_changed':len(changed_landing_paths),'version':'10.5'})
 save('/metadata',meta)
 print('V10 :',len(all_players),'joueurs LNH,',meta['league_teams'],'équipes, classement complet généré.',flush=True)
