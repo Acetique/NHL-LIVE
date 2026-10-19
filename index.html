@@ -1075,7 +1075,7 @@ async function renderMatchDetails(id,node){
   const scoreA=a.score??match?.awayTeam?.score??'—',scoreH=h.score??match?.homeTeam?.score??'—';
   const shotsA=a.sog??landing.awayTeam?.sog??'—',shotsH=h.sog??landing.homeTeam?.sog??'—';
   const notice=active&&liveData?'<p class="muted">🔴 Données du match en cours</p>':'';
-  node.innerHTML=`<h3>Résumé du match · ${(away==='MTL'||home==='MTL')?`${safe(away)} ${safe(scoreA)} – ${safe(scoreH)} ${safe(home)}`:`${safe(away)} – ${safe(home)}`}</h3>${notice}<p><b>Tirs :</b> ${safe(shotsA)} – ${safe(shotsH)}</p><h4>Buts et passes</h4><div class="tablewrap"><table><thead><tr><th>Période</th><th>Buteur</th><th>Équipe</th><th>Temps</th><th>Passes</th></tr></thead><tbody>${rows||'<tr><td colspan="5">Aucun but inscrit ou détail indisponible.</td></tr>'}</tbody></table></div>`;
+  node.innerHTML=`<h3>Résumé du match · ${safe(away)} (${safe(scoreA)}) – ${safe(home)} (${safe(scoreH)})</h3>${notice}<p><b>Tirs :</b> ${safe(shotsA)} – ${safe(shotsH)}</p><h4>Buts et passes</h4><div class="tablewrap"><table><thead><tr><th>Période</th><th>Buteur</th><th>Équipe</th><th>Temps</th><th>Passes</th></tr></thead><tbody>${rows||'<tr><td colspan="5">Aucun but inscrit ou détail indisponible.</td></tr>'}</tbody></table></div>`;
  }catch(e){node.innerHTML=`<p class="error">Statistiques temporairement indisponibles : ${safe(e.message)}. Vérifier les données du match dans le collecteur GitHub Actions.</p>`;}
 }
 
