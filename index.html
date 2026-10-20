@@ -1934,12 +1934,20 @@ async function loadLeague(){
   const visibleGames=(payload.games||[]).filter(g=>!(isMTL(g.homeTeam)||isMTL(g.awayTeam))||ended(g));
   const matches=liveFirst(visibleGames);window.currentLeagueGames=matches;
   $('leaguegames').innerHTML=matches.length?matches.map(scoreCard).join(''):'<div class="empty">Aucune rencontre à cette date.</div>';
-  document.querySelectorAll('.match-details').forEach(b=>b.onclick=()=>showMatch(Number(b.dataset.game)));
+  // Les boutons sont gérés par délégation pour tous les matchs, même après actualisation.
   $('leagueupdated').textContent='Données mises en cache par GitHub Actions · Dernière publication : '+(payload.cached_at||'heure non disponible')+'.';
  }catch(e){$('leaguegames').innerHTML=`<p class="error">Données non encore disponibles pour cette date. ${safe(e.message)}</p>`;}
 }
+// V162 : même ouverture intégrée pour les matchs terminés et les matchs en direct.
+// La délégation évite de perdre le clic lorsque le calendrier est redessiné.
+$('leaguegames').addEventListener('click',e=>{
+ const button=e.target.closest('button.match-details[data-game]');
+ if(!button||!$('leaguegames').contains(button))return;
+ e.preventDefault();
+ showMatch(Number(button.dataset.game));
+});
 async function showCHMatch(id,button){
- const node=$('match-'+id);if(!node)return;
+ const node=document.querySelector('#gameslist [id="match-'+Number(id)+'"]');if(!node)return;
  const opening=node.classList.contains('hide');
  node.classList.toggle('hide',!opening);
  node.closest('.match-tile')?.classList.toggle('match-detail-open',opening);
@@ -1948,9 +1956,9 @@ async function showCHMatch(id,button){
 }
 // V61 : les statistiques des matchs en direct s'ouvrent sous leur rencontre.
 // V160 : rencontres terminées et en direct : détails sous la carte du match.
-// Le résumé « Dernier résultat » du CH conserve sa fenêtre dédiée.
+// Le résumé « Dernier résultat » du CH conserve sa fenêtre dédiée (comportement existant).
 async function showMatch(id){
- const panel=$('match-'+Number(id));
+ const panel=document.querySelector('#leaguegames [id="match-'+Number(id)+'"]');
  if(!panel)return;
  const opening=panel.classList.contains('hide');
  panel.classList.toggle('hide',!opening);
