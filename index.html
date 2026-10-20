@@ -1739,6 +1739,46 @@ header .brand{font-size:clamp(33px,3.5vw,43px)!important;line-height:1.15}
  }
 }
 </style>
+
+<style id="nhl-v163-mobile-goal-scorers-assists">
+@media(max-width:600px){
+ /* Un buteur sur trois lignes : initiale, nom, total saisonnier. */
+ .match-panel .goal-scorer-mobile,.detail-dialog .goal-scorer-mobile{display:flex;flex-direction:column;align-items:flex-start;gap:1px;line-height:1.25;white-space:normal}
+ .match-panel .goal-scorer-mobile > span,.detail-dialog .goal-scorer-mobile > span{display:block}
+ .match-panel .goal-scorer-mobile .muted,.detail-dialog .goal-scorer-mobile .muted{white-space:nowrap}
+ .match-panel .goal-assists-mobile,.detail-dialog .goal-assists-mobile{display:flex;flex-direction:column;align-items:flex-start;gap:3px;line-height:1.3;white-space:normal}
+ .match-panel .goal-assists-mobile > span,.detail-dialog .goal-assists-mobile > span{display:block;white-space:nowrap}
+ .match-panel .goal-scorer-desktop,.detail-dialog .goal-scorer-desktop,.match-panel .goal-assists-desktop,.detail-dialog .goal-assists-desktop{display:none!important}
+}
+@media(min-width:601px){
+ .goal-scorer-mobile,.goal-assists-mobile{display:none!important}
+}
+</style>
+<style id="nhl-v164-scorer-single-line-mobile">
+@media(max-width:600px){
+ /* Garder l'initiale et le nom de famille ensemble sur la première ligne. */
+ .match-panel .goal-scorer-mobile,.detail-dialog .goal-scorer-mobile{
+   display:inline-flex!important;flex-direction:column!important;align-items:flex-start!important;
+   width:max-content!important;min-width:max-content!important;max-width:none!important;
+   white-space:nowrap!important;gap:1px!important;
+ }
+ .match-panel .goal-scorer-mobile .goal-scorer-name,
+ .detail-dialog .goal-scorer-mobile .goal-scorer-name{
+   display:block!important;white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;
+ }
+ .match-panel .goal-scorer-mobile .goal-scorer-total,
+ .detail-dialog .goal-scorer-mobile .goal-scorer-total{
+   display:block!important;white-space:nowrap!important;
+ }
+ /* Chaque passeur conserve son nom et son total sur une seule ligne. */
+ .match-panel .goal-assists-mobile > span,.detail-dialog .goal-assists-mobile > span{
+   white-space:nowrap!important;overflow-wrap:normal!important;word-break:normal!important;
+ }
+ /* Les longues lignes défilent horizontalement sans couper les noms. */
+ .match-panel .tablewrap,.detail-dialog .tablewrap{overflow-x:auto}
+ .match-panel table:has(.goal-scorer-mobile),.detail-dialog table:has(.goal-scorer-mobile){width:max-content!important;min-width:100%!important}
+}
+</style>
 </head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Forcer collecte LNH</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div><section id="games" class="section hide"><div class="toolbar"><h2>Calendrier et résultats</h2><select id="gamefilter"><option value="live">En cours</option><option value="all" selected>Tous les matchs</option><option value="upcoming">À venir</option><option value="past">Terminés</option></select></div><div class="card" id="gameslist"><div class="empty">Chargement du calendrier…</div></div></section><section id="league" class="section"><div class="toolbar"><h2>Résultats de toute la LNH</h2><div class="league-date-controls"><button class="btn back" id="leagueYesterday" type="button">← Hier</button><button class="btn back" id="leagueToday" type="button">Aujourd’hui</button><button class="btn back" id="leagueTomorrow" type="button">Demain →</button><button class="btn ch-games-shortcut" id="leagueCHGames" type="button">Matchs CH</button><div class="league-date-picker"><label for="leagueDate">Date :</label><input type="date" id="leagueDate" aria-label="Choisir une date"></div></div></div><div class="card" id="leaguegames"><div class="empty">Chargement des pointages…</div></div></section><section id="players" class="section hide"><div class="toolbar"><h2>Statistiques des joueurs</h2><input id="search" placeholder="Rechercher un joueur…" aria-label="Rechercher un joueur"></div><div class="card tablewrap"><table><thead><tr><th data-sort="name" class="player-col-title">Joueurs</th><th data-sort="gamesPlayed">MJ</th><th data-sort="goals">B</th><th data-sort="assists">A</th><th data-sort="points">PTS</th><th data-sort="plusMinus">+/-</th><th data-sort="shots">Tirs</th><th data-sort="powerPlayGoals">B AV</th><th data-sort="shorthandedGoals">B DN</th><th data-sort="pim">PUN</th><th>Dernier match (B-A-PTS)</th></tr></thead><tbody id="playerrows"><tr><td colspan="8">Chargement…</td></tr></tbody></table></div></section><section id="profile" class="section hide"><button class="btn back" id="backplayers">← Retour aux joueurs</button><div id="profilecontent" class="card profile">Choisir un joueur.</div></section><section id="goalies" class="section hide"><h2>Statistiques des gardiens</h2><div class="card tablewrap"><table><thead><tr><th>Gardiens</th><th>MJ</th><th>V</th><th>D</th><th>DP</th><th>MBA</th><th>% ARR.</th><th>BL</th></tr></thead><tbody id="goalierows"><tr><td colspan="8">Chargement…</td></tr></tbody></table></div></section><section id="standings" class="section hide"><h2>Division Atlantique</h2><div class="card tablewrap"><table><thead><tr><th>Équipe</th><th>MJ</th><th>V</th><th>D</th><th>DP</th><th>BP</th><th>BC</th><th>PTS</th></tr></thead><tbody id="standingrows"><tr><td colspan="8">Chargement…</td></tr></tbody></table></div></section><section id="allstandings" class="section hide"><div class="toolbar"><h2>Classement général de la LNH</h2><select id="rankMode"><option value="league">LNH — 32 équipes</option><option value="conference">Par conférence</option><option value="division">Par division</option></select></div><div class="card tablewrap"><table><colgroup><col class="rank-col"><col class="rank-team-col"><col span="7" class="rank-stat-col"></colgroup><thead><tr><th><span class="rank-label-desktop">Rang</span><span class="rank-label-mobile">#</span></th><th class="team-col-title">Équipes</th><th><span class="league-mj-heading">MJ</span></th><th>V</th><th>D</th><th>DP</th><th>PTS</th><th>BP</th><th>BC</th></tr></thead><tbody id="allstandingrows"><tr><td colspan="9">Chargement…</td></tr></tbody></table></div></section><section id="leagueplayers" class="section hide"><div class="league-mobile-type" role="radiogroup" aria-label="Catégorie des statistiques LNH"><label><input type="radio" name="leagueMobileType" value="players" checked> Joueurs</label><label><input type="radio" name="leagueMobileType" value="goalies"> Gardiens</label></div><h2>Meneurs de la LNH</h2><div class="toolbar"><input id="leagueSearch" placeholder="Rechercher un joueur…"><select id="leagueTeam"><option value="">Toutes les équipes</option></select></div><div class="card tablewrap"><table><thead><tr><th>Joueurs</th><th class="team-col-title">Équipes</th><th>MJ</th><th>B</th><th>A</th><th>PTS</th><th>Tirs</th><th>+/-</th><th>B AV</th><th>B DN</th><th>PUN</th></tr></thead><tbody id="leaguePlayerRows"></tbody></table></div></section><section id="leaguegoalies" class="section hide"><h2>Gardiens</h2><div class="toolbar"><input id="leagueGoalieSearch" type="search" placeholder="Rechercher un gardien…" aria-label="Rechercher un gardien"><select id="leagueGoalieTeam"><option value="">Toutes les équipes</option></select><select id="leagueGoalieSort"><option value="wins">Victoires</option><option value="savePercentage">% d'arrêts</option><option value="goalsAgainstAverage">Moyenne de buts alloués</option><option value="gamesPlayed">Matchs joués</option><option value="shutouts">Blanchissages</option></select></div><p class="muted hide" id="leagueGoalieStatus" aria-live="polite">Chargement…</p><div class="card tablewrap"><table><thead><tr><th>Gardiens</th><th class="team-col-title">Équipes</th><th>MJ</th><th>V</th><th>D</th><th>DP</th><th>% ARR.</th><th>MBA</th><th>BL</th><th>Arrêts</th></tr></thead><tbody id="leagueGoalieRows"><tr><td colspan="10">Chargement…</td></tr></tbody></table></div></section><section id="leaguecompare" class="section hide"><h2>Comparer les joueurs</h2><div class="toolbar"><input id="leagueCompareSearchA" type="search" placeholder="Rechercher joueur 1…" aria-label="Rechercher joueur 1"><select id="leagueCompareA"></select><input id="leagueCompareSearchB" type="search" placeholder="Rechercher joueur 2…" aria-label="Rechercher joueur 2"><select id="leagueCompareB"></select><select id="leagueComparePeriod"><option value="5">5 derniers matchs</option><option value="10">10 derniers matchs</option></select><button class="btn" id="leagueCompareRun">Comparer</button></div><div class="card" id="leagueCompareOutput">Sélectionnez deux joueurs.</div></section><section id="compare" class="section hide"><h2>Comparateur de joueurs</h2><p class="muted">Compare les statistiques de saison et les performances des 5 ou 10 derniers matchs.</p><div class="toolbar"><input id="compareSearchA" type="search" placeholder="Rechercher joueur 1…" aria-label="Rechercher joueur 1"><select id="compareA" aria-label="Premier joueur"></select><input id="compareSearchB" type="search" placeholder="Rechercher joueur 2…" aria-label="Rechercher joueur 2"><select id="compareB" aria-label="Deuxième joueur"></select><select id="comparePeriod"><option value="5">5 derniers matchs</option><option value="10">10 derniers matchs</option></select><button class="btn" id="compareRun">Comparer</button></div><div id="compareOutput" class="card">Choisissez deux joueurs.</div></section><p id="status" role="status" class="hide" aria-live="polite"></p><p id="leagueupdated" class="hide"></p><footer class="site-update-footer"><span id="lastUpdate" aria-live="polite">Date et heure de la dernière mise à jour : chargement…</span></footer></main><div id="detailOverlay" class="detail-overlay hide" role="dialog" aria-modal="true" aria-label="Détails"><div class="detail-dialog"><button class="btn back detail-close" type="button" id="detailClose">✕ Fermer</button><div id="detailContent"></div></div></div><script>
 const BASE='./data',TZ='America/Toronto';let profileRequest=0,liveDetails=new Map();let lastGameStats={};let games=[],skaters=[],goalies=[],leagueStandings=[],sortKey='points',sortDesc=true;const $=id=>document.getElementById(id),fmt=d=>new Intl.DateTimeFormat('fr-CA',{timeZone:TZ,weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}).format(new Date(d)),name=x=>typeof x==='string'?x:(x?.fr||x?.default||'—'),abbr=t=>name(t?.abbrev)||'—';async function get(path){const r=await fetch(BASE+path+'.json?ts='+Date.now(),{cache:'no-store'});if(!r.ok)throw Error('Données non générées ('+r.status+'). Exécuter GitHub Actions : Actualiser CH LIVE.');return r.json()}const ended=g=>['FINAL','OFF'].includes(g.gameState),live=g=>['LIVE','CRIT'].includes(g.gameState),isMTL=t=>abbr(t)==='MTL';function liveFirst(a){return [...a].sort((x,y)=>{
  const priority=g=>live(g)?(isMTL(g.homeTeam)||isMTL(g.awayTeam)?0:1):2;
@@ -1849,13 +1889,27 @@ async function silentRefresh(){
  const focused=document.activeElement;
  const focusId=focused?.id||null;
  const selection=focused&&typeof focused.selectionStart==='number'?[focused.selectionStart,focused.selectionEnd]:null;
- const openCH=[...document.querySelectorAll('#gameslist [id^="match-"]:not(.hide)')].map(el=>el.id);
- const openCHContents=new Map(openCH.map(id=>[id,document.getElementById(id)?.innerHTML]));
+ const openDetails=[...document.querySelectorAll('#gameslist .match-panel:not(.hide),#leaguegames .match-panel:not(.hide)')].map(el=>({
+   container:el.closest('#gameslist')?'gameslist':'leaguegames',
+   id:el.id,html:el.innerHTML,scrollTop:el.scrollTop,scrollLeft:el.scrollLeft
+ }));
  try{
   await refresh();
   // Évite de reconstruire la navigation lorsqu'elle est déjà correcte.
   if(activeTab&&document.querySelector('.tab.active')?.dataset.tab!==activeTab)openTab(activeTab);
-  for(const id of openCH){const el=document.getElementById(id);if(el){el.classList.remove('hide');if(openCHContents.get(id))el.innerHTML=openCHContents.get(id);const btn=document.querySelector(`[data-ch-game="${id.replace('match-','')}"]`);if(btn){btn.setAttribute('aria-expanded','true');btn.textContent='Masquer les détails';}}}
+  for(const saved of openDetails){
+   const container=document.getElementById(saved.container);
+   const el=[...container.querySelectorAll('.match-panel')].find(node=>node.id===saved.id);
+   if(!el)continue;
+   el.classList.remove('hide');
+   el.innerHTML=saved.html;
+   el.scrollTop=saved.scrollTop;el.scrollLeft=saved.scrollLeft;
+   el.closest('.match-tile')?.classList.add('match-detail-open');
+   const gameId=saved.id.replace('match-','');
+   const selector=saved.container==='gameslist'?`[data-ch-game="${gameId}"]`:`.match-details[data-game="${gameId}"]`;
+   const btn=container.querySelector(selector);
+   if(btn){btn.setAttribute('aria-expanded','true');btn.textContent='Masquer les détails';}
+  }
   if(focusId&&document.getElementById(focusId)){const target=document.getElementById(focusId);target.focus({preventScroll:true});if(selection&&typeof target.setSelectionRange==='function')try{target.setSelectionRange(...selection)}catch(e){}}
   // Restaurer après mise en page, sans déplacer la page si l'utilisateur navigue.
   if(!userMoved){
@@ -1993,7 +2047,20 @@ async function renderMatchDetails(id,node){
   const goals=periods.flatMap(p=>(p.goals||[]).map(g=>({period:p.periodDescriptor?.number||p.period||'—',g})));
   const rows=goals.map(({period,g})=>{
    const scorer=[name(g.firstName),name(g.lastName)].filter(v=>v&&v!=='—').join(' ')||(name(g.name)!=='—'?name(g.name):'Buteur');
-   return `<tr><td>${safe(period)}</td><td>${safe(shortPlayerName(scorer))}${goalSeasonTotal(g)}</td><td>${teamLogoCode(g.teamAbbrev?.default||g.teamAbbrev||'—')} ${safe(g.teamAbbrev?.default||g.teamAbbrev||'—')}</td><td>${safe(g.timeInPeriod||'—')}</td><td>${assistsWithSeason(g)}</td></tr>`;
+   const scorerShort=shortPlayerName(scorer);
+   const scorerParts=scorerShort.match(/^([^\s]+)\s+(.+)$/);
+   const scorerInitial=scorerParts?scorerParts[1]:scorerShort;
+   const scorerSurname=scorerParts?scorerParts[2]:'';
+   const scorerTotal=goalSeasonTotal(g);
+   const mobileScorer=`<span class="goal-scorer-mobile"><span class="goal-scorer-name">${safe(scorerShort)}</span><span class="goal-scorer-total">${scorerTotal||'&nbsp;'}</span></span>`;
+   const desktopScorer=`<span class="goal-scorer-desktop">${safe(scorerShort)}${scorerTotal}</span>`;
+   const assists=(g.assists||[]).map(a=>{
+     const who=name(a.name)||[name(a.firstName),name(a.lastName)].filter(x=>x!=='—').join(' ');
+     const n=a.assistsToDate??a.seasonAssists??a.assistsSeason??a.totalAssists??null;
+     return `${safe(shortPlayerName(who))}${n!==null&&Number.isFinite(Number(n))?' <span class="muted">('+Number(n)+')</span>':''}`;
+   });
+   const mobileAssists=`<span class="goal-assists-mobile">${assists.length?assists.map(a=>`<span>${a}</span>`).join(''):'<span>Sans aide</span>'}</span>`;
+   return `<tr><td>${safe(period)}</td><td>${desktopScorer}${mobileScorer}</td><td>${teamLogoCode(g.teamAbbrev?.default||g.teamAbbrev||'—')} ${safe(g.teamAbbrev?.default||g.teamAbbrev||'—')}</td><td>${safe(g.timeInPeriod||'—')}</td><td><span class="goal-assists-desktop">${assistsWithSeason(g)}</span>${mobileAssists}</td></tr>`;
   }).join('');
   const a=box.awayTeam||landing.awayTeam||{},h=box.homeTeam||landing.homeTeam||{};
   const away=teamCode(a.abbrev||a.teamAbbrev)||abbr(a)||abbr(match?.awayTeam);
