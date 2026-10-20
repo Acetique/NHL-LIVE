@@ -1428,7 +1428,7 @@ header .brand{font-size:clamp(33px,3.5vw,43px)!important;line-height:1.15}
 }
 </style>
 
-<style id="nhl-v139-mobile-ranking-widths">
+<style id="nhl-v140-mobile-ranking-spacing">
 /* V139 : uniquement sur téléphone, réduire la largeur physique des colonnes
    des trois modes de classement. Conserver polices, cellules sticky et styles. */
 @media (max-width:600px) {
@@ -1436,12 +1436,18 @@ header .brand{font-size:clamp(33px,3.5vw,43px)!important;line-height:1.15}
     --rank-fixed-width:40px;
     --team-fixed-width:90px;
   }
+  /* V140 : rapprocher les valeurs sans changer la police, le tableau ni les colonnes fixes. */
   #allstandings > .card.tablewrap > table {
-    width:calc(var(--rank-fixed-width) + var(--team-fixed-width) + 7 * 58px)!important;
-    min-width:calc(var(--rank-fixed-width) + var(--team-fixed-width) + 7 * 58px)!important;
+    width:calc(var(--rank-fixed-width) + var(--team-fixed-width) + 7 * 51px)!important;
+    min-width:calc(var(--rank-fixed-width) + var(--team-fixed-width) + 7 * 51px)!important;
   }
   #allstandings > .card.tablewrap > table > colgroup > col.rank-stat-col {
-    width:58px!important;
+    width:51px!important;
+  }
+  #allstandings > .card.tablewrap > table > :is(thead,tbody) > tr:not(.group-heading) > :is(th,td):nth-child(n+3) {
+    padding-left:2px!important;
+    padding-right:2px!important;
+    text-align:center!important;
   }
 }
 </style>
