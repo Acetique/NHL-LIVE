@@ -2018,7 +2018,7 @@ if(games.find(x=>live(x))?.id===g.id){
   $('nextdetail').textContent=`${p} · Temps restant : ${freshClock}`;
  }
 }
-let goals=[...(landing.summary?.scoring||[]).flatMap(p=>p.goals||[])];let goalText=goals.length?goals.map(x=>`${safe(name(x.name)||name(x.firstName)+' '+name(x.lastName))} (${safe(x.teamAbbrev?.default||x.teamAbbrev||'')})`).join(' · '):'Aucun buteur pour le moment';let away=box.awayTeam?.sog??landing.awayTeam?.sog,home=box.homeTeam?.sog??landing.homeTeam?.sog;let html=`<b>Tirs :</b> ${safe(abbr(g.awayTeam))} ${away??'—'} – ${home??'—'} ${safe(abbr(g.homeTeam))}<div><b>Buteurs :</b> ${goalText}</div>`;liveDetails.set(g.id,html);let node=$(`live-${g.id}`);if(node)node.innerHTML=html}catch(e){let node=$(`live-${g.id}`);if(node)node.textContent='Statistiques détaillées temporairement indisponibles.'}}))}
+let goals=[...(landing.summary?.scoring||[]).flatMap(p=>p.goals||[])];let goalText=goals.length?goals.map(x=>`${safe(name(x.name)||name(x.firstName)+' '+name(x.lastName))} (${safe(x.teamAbbrev?.default||x.teamAbbrev||'')})`).join(' · '):'Aucun buteur pour le moment';let away=box.awayTeam?.sog??landing.awayTeam?.sog,home=box.homeTeam?.sog??landing.homeTeam?.sog;let html=`Tirs : ${away??'—'} – ${home??'—'}`;liveDetails.set(g.id,html);let node=$(`live-${g.id}`);if(node)node.innerHTML=html}catch(e){let node=$(`live-${g.id}`);if(node)node.textContent='Statistiques détaillées temporairement indisponibles.'}}))}
 
 // Logos officiels renvoyés par la LNH, avec solution de repli.
 function teamLogo(team){
