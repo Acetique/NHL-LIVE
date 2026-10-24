@@ -2297,11 +2297,13 @@ main.wrap > .grid:first-child > .card:nth-child(2) #lastdetail .last-match-date 
 #gameslist .match-tile .when .pill,#leaguegames .match-tile .when .pill,#playoffGamesList .match-tile .when .pill{margin:0!important;font-size:10px!important;padding:3px 6px!important}
 #gameslist .match-tile .result,#leaguegames .match-tile .result,#playoffGamesList .match-tile .result{font-size:clamp(21px,2.2vw,27px)!important}
 #gameslist .match-tile .gameextra,#leaguegames .match-tile .gameextra,#playoffGamesList .match-tile .gameextra{display:none!important}
-/* Logo TBL plus clair sur fond sombre, sans toucher aux autres équipes. */
-/* Le fichier officiel TBL_light.svg est déjà blanc : ne pas inverser ses couleurs. */
-/* Logo TBL blanc uniquement dans les affichages de matchs. */
-#allstandings img.team-logo[src*="TBL_light.svg"],#standings img.team-logo[src*="TBL_light.svg"]{filter:invert(1)!important;opacity:1!important}
-#gameslist img.team-logo[src*="TBL_light.svg"],#leaguegames img.team-logo[src*="TBL_light.svg"],#playoffGamesList img.team-logo[src*="TBL_light.svg"],#teamScheduleOverlay img.team-logo[src*="TBL_light.svg"],#detailOverlay img.team-logo[src*="TBL_light.svg"]{filter:none!important;opacity:1!important}
+/* TBL : symbole blanc dans toutes les sections, transparence conservée. */
+img.team-logo[src*="/TBL_"],img.team-logo[src*="/TBL."],
+img[src*="/TBL_light.svg"],img[src*="/TBL_dark.svg"]{
+  filter:brightness(0) invert(1)!important;
+  opacity:1!important;
+  background:transparent!important;
+}
 /* Titre Prochain match en vert, direct reste rouge. */
 #nextHeading:not(.is-live-heading){color:#59dfa5!important}
 #nextHeading.is-live-heading{color:#59dfa5!important}
