@@ -1904,6 +1904,33 @@ header .brand{font-size:clamp(33px,3.5vw,43px)!important;line-height:1.15}
  #playoffPlayers .playoff-stats-switch label{min-height:30px!important;height:30px!important;padding:3px 9px!important;gap:6px!important;border-radius:8px!important;font-size:12px!important;line-height:1.1!important}
  #playoffPlayers .playoff-stats-switch input[type="radio"]{width:14px!important;height:14px!important;min-width:14px!important}
 }
+</style><style id="nhl-v188-playoff-matching-controls">
+/* Séries / Matchs : dimensions identiques aux commandes Saison / Matchs. */
+#playoffGames > .toolbar{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:12px!important}
+#playoffGames > .toolbar > h2{width:100%}
+#playoffGames .league-date-controls{display:flex!important;flex:0 1 auto!important;width:100%!important;margin:0 auto!important;justify-content:flex-start!important;align-items:center!important;gap:6px!important;flex-wrap:wrap!important}
+#playoffGames .league-date-picker{display:flex!important;width:auto!important;margin:0 0 0 5px!important;justify-content:flex-start!important;align-items:center!important;gap:6px!important;white-space:nowrap!important}
+#playoffGames .league-date-controls > .btn{flex:none!important;min-height:32px!important;padding:6px 10px!important;font-size:12px!important;line-height:1.2!important;border-radius:7px!important;margin-left:0!important}
+#playoffGames .league-date-picker input[type=date]{box-sizing:border-box!important;width:170px!important;height:32px!important;min-height:32px!important;padding:3px 9px!important;font-size:12px!important;line-height:20px!important;border-radius:7px!important;text-align:center!important;text-align-last:center!important}
+#playoffGames #playoffDate::-webkit-date-and-time-value{text-align:center!important;min-height:1em}
+#playoffGames #playoffDate::-webkit-datetime-edit{text-align:center!important;display:inline-block}
+/* Les trois onglets Séries ont une hauteur identique à ceux de Saison. */
+.playoff-navgroup .tabs{align-items:stretch!important}
+.playoff-navgroup .tabs > .tab{min-height:44px!important;height:auto!important;display:inline-flex!important;align-items:center!important;justify-content:center!important}
+@media(min-width:751px){
+ #playoffGames .league-date-controls{gap:12px!important}
+ #playoffGames .league-date-controls > .btn{min-height:44px!important;padding:11px 19px!important;font-size:15px!important;line-height:1.3!important;border-radius:10px!important}
+ #playoffGames .league-date-picker{gap:10px!important;margin-left:12px!important}
+ #playoffGames .league-date-picker label{font-size:15px!important;font-weight:650!important}
+ #playoffGames .league-date-picker input[type=date]{width:185px!important;height:44px!important;min-height:44px!important;padding:9px 12px!important;font-size:15px!important;border-radius:10px!important}
+}
+@media(max-width:750px){
+ #playoffGames .league-date-controls{justify-content:flex-start!important;gap:5px!important}
+ #playoffGames .league-date-picker{width:100%!important;margin:4px 0 0!important;justify-content:flex-start!important}
+ #playoffGames .league-date-controls > .btn{min-height:32px!important;padding:6px 9px!important;font-size:11px!important}
+ #playoffGames .league-date-picker input[type=date]{height:30px!important;min-height:30px!important;padding:2px 8px!important}
+ .playoff-navgroup .tabs > .tab{min-height:46px!important}
+}
 </style></head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
 <div class="navgroup playoff-navgroup"><h2>🏆 Séries</h2><nav class="tabs" aria-label="Sections séries éliminatoires"><button class="tab" data-tab="playoffGames">Matchs</button><button class="tab" data-tab="playoffBracket">Tableau</button><button class="tab" data-tab="playoffPlayers">Joueurs</button></nav></div>
 <section id="playoffGames" class="section hide"><div class="toolbar"><h2>Calendrier et résultats (Séries)</h2><div class="league-date-controls"><button class="btn back" id="playoffYesterday" type="button">← Hier</button><button class="btn back" id="playoffToday" type="button">Aujourd’hui</button><button class="btn back" id="playoffTomorrow" type="button">Demain →</button><div class="league-date-picker"><label for="playoffDate">Date :</label><input type="date" id="playoffDate"></div></div></div><div class="card" id="playoffGamesList"><div class="empty">Les rencontres des séries seront affichées lorsqu'elles seront disponibles.</div></div></section>
