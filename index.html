@@ -2239,6 +2239,8 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-goalie-pla
 const standingsHtmlCache=new Map();
 function renderAllStandings(){
  const mode=$('rankMode').value;
+ if(renderAllStandings._mode===mode && renderAllStandings._data===leagueStandings && $('allstandingrows').children.length>1)return;
+ renderAllStandings._mode=mode;renderAllStandings._data=leagueStandings;
  $('allstandings').classList.toggle('rank-grouped',mode!=='league');
  const key=mode==='division'?'divisionName':mode==='conference'?'conferenceName':null;
  const a=[...leagueStandings].sort((x,y)=>{
@@ -3100,4 +3102,43 @@ function init(){
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
 </script>
-</body></html>
+<style id="nhl-v179-mobile-standings-goalies">
+/* Les entêtes conférence et division ne restent plus fixes verticalement. */
+#allstandings.rank-grouped table thead th,
+#allstandings.rank-grouped table tbody tr.group-column-headings th{top:auto!important;position:relative!important;}
+/* Garder les deux colonnes latérales fixes, sauf les en-têtes répétés. */
+#allstandings.rank-grouped table tbody tr.group-column-headings th{left:auto!important;z-index:1!important;}
+@media(max-width:600px){
+ #allstandings.rank-grouped table tbody tr.group-column-headings th{position:static!important;}
+ #allstandings.rank-grouped .card.tablewrap{contain:layout style;}
+ #allstandings.rank-grouped tbody tr:not(.group-heading):not(.group-column-headings) td{transition:none!important;filter:none!important;transform:none!important;}
+ #leagueplayers #leaguegoalies{display:block!important;}
+ #leagueplayers.mobile-show-goalies #playersRegular{display:none!important;}
+ #leagueplayers.mobile-show-goalies #playersPlayoffSlot{display:none!important;}
+ #leagueplayers.mobile-show-goalies #leaguegoalies .playoff-wide-switch{display:none!important;}
+}
+</style>
+<script id="nhl-v179-mobile-goalies">
+(function(){
+ 'use strict';
+ const players=document.getElementById('leagueplayers');
+ const goalies=document.getElementById('leaguegoalies');
+ const originalParent=goalies.parentNode;
+ const nextSibling=goalies.nextSibling;
+ const radios=[...document.querySelectorAll('input[name="leagueMobileType"]')];
+ function sync(){
+  const mobile=window.matchMedia('(max-width:600px)').matches;
+  const show=mobile && !document.getElementById('playersPlayoffs')?.checked && radios.find(r=>r.checked)?.value==='goalies';
+  if(mobile && goalies.parentNode!==players)players.appendChild(goalies);
+  if(!mobile && goalies.parentNode===players)originalParent.insertBefore(goalies,nextSibling);
+  players.classList.toggle('mobile-show-goalies',!!show);
+  if(mobile){goalies.classList.toggle('hide',!show);if(show && typeof renderLeagueGoalieList==='function')renderLeagueGoalieList();}
+  else if(!document.querySelector('.tab[data-tab="leaguegoalies"]')?.classList.contains('active'))goalies.classList.add('hide');
+ }
+ radios.forEach(r=>r.addEventListener('change',()=>requestAnimationFrame(sync)));
+ document.getElementById('playersPlayoffs')?.addEventListener('change',()=>requestAnimationFrame(sync));
+ window.addEventListener('resize',sync,{passive:true});
+ document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>requestAnimationFrame(sync)));
+ sync();
+})();
+</script></body></html>
