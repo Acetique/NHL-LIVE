@@ -2308,6 +2308,49 @@ header .brand{font-size:clamp(36px,3.8vw,46px)!important}
 @media(max-width:750px){header .brand{font-size:clamp(29px,7.9vw,37px)!important}#gameslist .match-tile,#leaguegames .match-tile,#playoffGamesList .match-tile{padding:9px 10px!important}#gameslist .match-tile .teams,#leaguegames .match-tile .teams,#playoffGamesList .match-tile .teams{font-size:14px!important}#recorddetail{margin-top:12px!important}}
 @media(max-width:380px){header .brand{font-size:clamp(25px,7.4vw,30px)!important}}
 </style>
+<style id="nhl-v208-equal-series-season-tab-heights">
+/* Les onglets Series adoptent exactement la hauteur effective des onglets Saison. */
+main.wrap > .playoff-navgroup > nav.tabs[aria-label="Sections séries éliminatoires"] > .tab {
+  box-sizing:border-box!important;
+  height:46px!important;
+  min-height:46px!important;
+  max-height:46px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:normal!important;
+}
+@media(max-width:750px){
+ main.wrap > .navgroup:not(.playoff-navgroup) > nav.tabs[aria-label="Sections LNH"] > .tab:not(.league-goalies-nav),
+ main.wrap > .playoff-navgroup > nav.tabs[aria-label="Sections séries éliminatoires"] > .tab {
+   height:46px!important;min-height:46px!important;max-height:46px!important;
+ }
+}
+</style>
+<style id="nhl-v209-alignment-and-heading">
+/* Series et Saison : memes hauteurs pour les onglets de navigation. */
+main.wrap > .navgroup > nav.tabs > button.tab,
+main.wrap > .playoff-navgroup > nav.tabs > button.tab {
+  box-sizing:border-box!important;height:46px!important;min-height:46px!important;max-height:46px!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}
+/* Date, heure et etat du match centres ensemble sous les equipes. */
+#gameslist .match-tile .when,
+#leaguegames .match-tile .when,
+#playoffGamesList .match-tile .when {
+  justify-content:center!important;text-align:center!important;width:100%!important;
+}
+/* Centrage des titres Dernier match et Fiche saison. */
+main.wrap > .grid:first-child > .card:nth-child(2) > .eyebrow,
+main.wrap > .grid:first-child > .card:nth-child(3) > .eyebrow {
+  text-align:center!important;width:100%!important;
+}
+/* Prochain match et Match en direct en vert. */
+main.wrap > .grid:first-child #nextHeading,
+main.wrap > .grid:first-child #nextHeading.is-live-heading {
+  color:#59dfa5!important;
+}
+</style>
 </head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier match</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
 <div class="navgroup playoff-navgroup"><h2>🏆 Séries</h2><nav class="tabs" aria-label="Sections séries éliminatoires"><button class="tab" data-tab="playoffGames">Matchs</button><button class="tab" data-tab="playoffBracket">Tableau</button><button class="tab" data-tab="playoffPlayers">Joueurs</button></nav></div>
 <section id="playoffGames" class="section hide"><div class="toolbar"><h2>Calendrier et résultats (Séries)</h2><div class="league-date-controls"><button class="btn back" id="playoffYesterday" type="button">← Hier</button><button class="btn back" id="playoffToday" type="button">Aujourd’hui</button><button class="btn back" id="playoffTomorrow" type="button">Demain →</button><div class="league-date-picker"><label for="playoffDate">Date :</label><input type="date" id="playoffDate"></div></div></div><div class="card" id="playoffGamesList"><div class="empty">Les rencontres des séries seront affichées lorsqu'elles seront disponibles.</div></div></section>
