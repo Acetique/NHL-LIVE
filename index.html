@@ -2351,6 +2351,71 @@ main.wrap > .grid:first-child #nextHeading.is-live-heading {
   color:#59dfa5!important;
 }
 </style>
+
+<style id="nhl-v210-compact-buttons-green-next-ch-red">
+/* Trois commandes principales : hauteur reduite, texte centre. */
+header #resetFilters, header #refresh, header #forceUpdate {
+  box-sizing:border-box!important;
+  height:39px!important;min-height:39px!important;max-height:39px!important;
+  padding:7px 10px!important;line-height:1.15!important;
+  align-items:center!important;justify-content:center!important;
+}
+/* Onglets Saison et Series : meme hauteur compacte. */
+main.wrap > .navgroup > nav.tabs > button.tab,
+main.wrap > .playoff-navgroup > nav.tabs > button.tab,
+main.wrap > .navgroup > nav.tabs[aria-label="Sections LNH"] > .tab:not(.league-goalies-nav),
+main.wrap > .playoff-navgroup > nav.tabs[aria-label="Sections séries éliminatoires"] > .tab {
+  box-sizing:border-box!important;height:38px!important;min-height:38px!important;max-height:38px!important;
+  padding-top:5px!important;padding-bottom:5px!important;line-height:1.15!important;
+  display:flex!important;align-items:center!important;justify-content:center!important;
+}
+/* Cible la regle historique utilisant :has() qui imposait le bleu. */
+main.wrap > .grid:first-child > .card:has(#nextHeading) #nextHeading,
+main.wrap > .grid:first-child > .card:has(#nextHeading) .eyebrow,
+main.wrap > .grid:first-child > .card:has(#nextHeading) #nextHeading.is-live-heading {
+  color:#59dfa5!important;
+}
+/* Calendrier et resultats LNH : raccourci Matchs CH rouge. */
+#leagueCHGames.btn.ch-games-shortcut {
+  color:#fff!important;
+  background:linear-gradient(180deg,#dc344e,#aa1c35)!important;
+  border:1px solid rgba(255,112,132,.58)!important;
+  box-shadow:0 2px 8px rgba(110,12,32,.16)!important;
+}
+#leagueCHGames.btn.ch-games-shortcut:hover {background:linear-gradient(180deg,#ed425b,#bd2640)!important;}
+</style>
+
+<style id="nhl-v211-resume-match-entete-centre">
+/* Résumés des matchs : trois lignes supérieures centrées, y compris CH et séries. */
+#gameslist .match-panel > h3, #leaguegames .match-panel > h3,
+#playoffGamesList .match-panel > h3, #detailContent > h3,
+#gameslist .match-panel > .match-live-status, #leaguegames .match-panel > .match-live-status,
+#playoffGamesList .match-panel > .match-live-status, #detailContent > .match-live-status,
+#gameslist .match-panel > p, #leaguegames .match-panel > p,
+#playoffGamesList .match-panel > p, #detailContent > p {
+ text-align:center !important; margin-left:auto !important; margin-right:auto !important;
+}
+#gameslist .match-panel > .match-live-status, #leaguegames .match-panel > .match-live-status,
+#playoffGamesList .match-panel > .match-live-status, #detailContent > .match-live-status {
+ justify-content:center !important; align-items:center !important;
+}
+</style>
+<style id="nhl-v212-ch-matchs-compacts">
+/* Cartes CH : disposition identique aux rencontres LNH, sans tirs. */
+#gameslist .match-tile{width:100%!important;max-width:100%!important;box-sizing:border-box!important;padding:11px 12px!important}
+#gameslist .match-tile .game{gap:4px!important}
+#gameslist .match-tile .teams{font-size:14px!important;gap:6px!important;justify-content:center!important}
+#gameslist .match-tile .when{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:5px!important;width:100%!important;font-size:11px!important;line-height:1.3!important;margin:3px 0!important;text-align:center!important}
+#gameslist .match-tile .when .pill{display:inline-flex!important;align-items:center!important;justify-content:center!important;margin:0!important;padding:3px 7px!important;font-size:10px!important;vertical-align:middle!important}
+#gameslist .match-tile .result{font-size:27px!important;margin:2px auto!important;text-align:center!important}
+#gameslist .match-tile .ch-match-detail{margin:5px auto 0!important;min-height:30px!important;padding:5px 10px!important}
+#gameslist .ch-match-shots,#gameslist .gameextra{display:none!important}
+/* Résumés de match : les trois lignes d'en-tête restent centrées. */
+#detailContent > h2,#detailContent > h3,#detailContent > p,
+#gameslist .match-panel > h2,#gameslist .match-panel > h3,#gameslist .match-panel > p,
+#leaguegames .match-panel > h2,#leaguegames .match-panel > h3,#leaguegames .match-panel > p,
+#playoffGamesList .match-panel > h2,#playoffGamesList .match-panel > h3,#playoffGamesList .match-panel > p{text-align:center!important}
+</style>
 </head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier match</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
 <div class="navgroup playoff-navgroup"><h2>🏆 Séries</h2><nav class="tabs" aria-label="Sections séries éliminatoires"><button class="tab" data-tab="playoffGames">Matchs</button><button class="tab" data-tab="playoffBracket">Tableau</button><button class="tab" data-tab="playoffPlayers">Joueurs</button></nav></div>
 <section id="playoffGames" class="section hide"><div class="toolbar"><h2>Calendrier et résultats (Séries)</h2><div class="league-date-controls"><button class="btn back" id="playoffYesterday" type="button">← Hier</button><button class="btn back" id="playoffToday" type="button">Aujourd’hui</button><button class="btn back" id="playoffTomorrow" type="button">Demain →</button><div class="league-date-picker"><label for="playoffDate">Date :</label><input type="date" id="playoffDate"></div></div></div><div class="card" id="playoffGamesList"><div class="empty">Les rencontres des séries seront affichées lorsqu'elles seront disponibles.</div></div></section>
@@ -2384,7 +2449,7 @@ async function updateFinishedCHShots(){
   }
  }
 }
-function renderGames(){let f=$('gamefilter').value;let a=games.filter(g=>f==='all'||f==='past'&&ended(g)||f==='upcoming'&&!ended(g)&&!live(g)||f==='live'&&live(g));if(f==='all') {a=a.slice()}a=liveFirst(a);$('gameslist').innerHTML=a.length?a.map(g=>{let state=live(g)?'🔴 EN DIRECT':ended(g)?'TERMINÉ':'À VENIR';let score=ended(g)||live(g)?`${g.awayTeam?.score??0} – ${g.homeTeam?.score??0}`:'';let period=live(g)?` · ${periodLabel(g)} · ${safe(g.clock?.timeRemaining||'Temps indisponible')}`:'';return `<article class="match-tile"><div class="game"><div><div class="teams">${teamScheduleButton(abbr(g.awayTeam),teamLogo(g.awayTeam))} <span class="muted">@</span> ${teamScheduleButton(abbr(g.homeTeam),teamLogo(g.homeTeam))}</div><div class="when">${fmt(g.startTimeUTC)} <span class="pill ${live(g)?'on':''}"><span class="live-pill-original">${state}${period}</span>${live(g)?`<span class="live-pill-mobile"><span class="live-pill-label">🔴 EN DIRECT</span><span class="live-pill-detail"><span class="live-pill-period">${safe(periodLabel(g))}</span><span class="live-pill-time">${safe(g.clock?.timeRemaining||'—')}</span></span></span>`:''}</span></div></div><div style="text-align:right"><div class="result">${score}${matchEndBadge(g)}</div>${live(g)?`<div class="gameextra" id="live-${g.id}">${liveDetails.get(g.id)||'Chargement des tirs et des buteurs…'}</div>`:''}${(ended(g)||live(g))?`<button type="button" class="btn back ch-match-detail" data-ch-game="${Number(g.id)}" aria-expanded="false">Détails du match</button>`:''}</div></div><div id="match-${Number(g.id)}" class="match-panel hide"></div></article>`}).join(''):'<div class="empty">Aucun match dans cette catégorie.</div>';void updateFinishedCHShots()}function renderPlayers(){let q=$('search').value.toLocaleLowerCase('fr');let arr=skaters.filter(p=>p.name.toLocaleLowerCase('fr').includes(q)).sort((a,b)=>{let x=a[sortKey],y=b[sortKey];return (typeof x==='string'?x.localeCompare(y,'fr'):x-y)*(sortDesc?-1:1)});$('playerrows').innerHTML=arr.map(p=>`<tr><td><div class="player">${p.headshot?`<img loading="lazy" src="${p.headshot}" alt="">`:''}<button class="playerlink" data-player="${p.playerId}">${safe(shortPlayerName(p.name))}</button></div></td><td>${p.gamesPlayed??'—'}</td><td>${p.goals??'—'}</td><td>${p.assists??'—'}</td><td>${p.points??'—'}</td><td>${p.plusMinus??'—'}</td><td>${p.shots??'—'}</td><td>${p.powerPlayGoals??p.ppGoals??'—'}</td><td>${p.shorthandedGoals??p.shortHandedGoals??p.shGoals??'—'}</td><td>${p.pim??p.penaltyMinutes??'—'}</td><td>${lastGameStats[p.playerId]||'—'}</td></tr>`).join('')||'<tr><td colspan="12">Aucun joueur trouvé.</td></tr>';document.querySelectorAll('[data-player]').forEach(b=>b.onclick=()=>showProfile(Number(b.dataset.player)))}function renderGoalies(){$('goalierows').innerHTML=goalies.map(p=>`<tr><td><button class="league-player-action" type="button" data-goalie-player="${Number(p.playerId)}">${safe(shortPlayerName(p.name))}</button></td><td>${p.gamesPlayed??'—'}</td><td>${p.wins??'—'}</td><td>${p.losses??'—'}</td><td>${p.overtimeLosses??'—'}</td><td>${p.goalsAgainstAverage?.toFixed(2)??'—'}</td><td>${p.savePercentage!=null?(p.savePercentage*100).toFixed(1)+' %':'—'}</td><td>${p.shutouts??'—'}</td></tr>`).join('')||'<tr><td colspan="8">Aucune donnée.</td></tr>'}// Dernier résultat du CH : ouvrir les statistiques dans une fenêtre interne.
+function renderGames(){let f=$('gamefilter').value;let a=games.filter(g=>f==='all'||f==='past'&&ended(g)||f==='upcoming'&&!ended(g)&&!live(g)||f==='live'&&live(g));if(f==='all') {a=a.slice()}a=liveFirst(a);$('gameslist').innerHTML=a.length?a.map(g=>{let state=live(g)?'🔴 EN DIRECT':ended(g)?'TERMINÉ':'À VENIR';let score=ended(g)||live(g)?`${g.awayTeam?.score??0} – ${g.homeTeam?.score??0}`:'';let period=live(g)?` · ${periodLabel(g)} · ${safe(g.clock?.timeRemaining||'Temps indisponible')}`:'';return `<article class="match-tile"><div class="game"><div><div class="teams">${teamScheduleButton(abbr(g.awayTeam),teamLogo(g.awayTeam))} <span class="muted">@</span> ${teamScheduleButton(abbr(g.homeTeam),teamLogo(g.homeTeam))}</div><div class="when">${fmt(g.startTimeUTC)} <span class="pill ${live(g)?'on':''}"><span class="live-pill-original">${state}${period}</span>${live(g)?`<span class="live-pill-mobile"><span class="live-pill-label">🔴 EN DIRECT</span><span class="live-pill-detail"><span class="live-pill-period">${safe(periodLabel(g))}</span><span class="live-pill-time">${safe(g.clock?.timeRemaining||'—')}</span></span></span>`:''}</span></div></div><div style="text-align:right"><div class="result">${score}${matchEndBadge(g)}</div>${(ended(g)||live(g))?`<button type="button" class="btn back ch-match-detail" data-ch-game="${Number(g.id)}" aria-expanded="false">Détails du match</button>`:''}</div></div><div id="match-${Number(g.id)}" class="match-panel hide"></div></article>`}).join(''):'<div class="empty">Aucun match dans cette catégorie.</div>'}function renderPlayers(){let q=$('search').value.toLocaleLowerCase('fr');let arr=skaters.filter(p=>p.name.toLocaleLowerCase('fr').includes(q)).sort((a,b)=>{let x=a[sortKey],y=b[sortKey];return (typeof x==='string'?x.localeCompare(y,'fr'):x-y)*(sortDesc?-1:1)});$('playerrows').innerHTML=arr.map(p=>`<tr><td><div class="player">${p.headshot?`<img loading="lazy" src="${p.headshot}" alt="">`:''}<button class="playerlink" data-player="${p.playerId}">${safe(shortPlayerName(p.name))}</button></div></td><td>${p.gamesPlayed??'—'}</td><td>${p.goals??'—'}</td><td>${p.assists??'—'}</td><td>${p.points??'—'}</td><td>${p.plusMinus??'—'}</td><td>${p.shots??'—'}</td><td>${p.powerPlayGoals??p.ppGoals??'—'}</td><td>${p.shorthandedGoals??p.shortHandedGoals??p.shGoals??'—'}</td><td>${p.pim??p.penaltyMinutes??'—'}</td><td>${lastGameStats[p.playerId]||'—'}</td></tr>`).join('')||'<tr><td colspan="12">Aucun joueur trouvé.</td></tr>';document.querySelectorAll('[data-player]').forEach(b=>b.onclick=()=>showProfile(Number(b.dataset.player)))}function renderGoalies(){$('goalierows').innerHTML=goalies.map(p=>`<tr><td><button class="league-player-action" type="button" data-goalie-player="${Number(p.playerId)}">${safe(shortPlayerName(p.name))}</button></td><td>${p.gamesPlayed??'—'}</td><td>${p.wins??'—'}</td><td>${p.losses??'—'}</td><td>${p.overtimeLosses??'—'}</td><td>${p.goalsAgainstAverage?.toFixed(2)??'—'}</td><td>${p.savePercentage!=null?(p.savePercentage*100).toFixed(1)+' %':'—'}</td><td>${p.shutouts??'—'}</td></tr>`).join('')||'<tr><td colspan="8">Aucune donnée.</td></tr>'}// Dernier résultat du CH : ouvrir les statistiques dans une fenêtre interne.
 async function openLastCHResult(){
  const last=[...games].reverse().find(ended);
  if(!last||!last.id)return;
