@@ -1988,7 +1988,90 @@ header .brand{font-size:clamp(33px,3.5vw,43px)!important;line-height:1.15}
   min-height:32px!important;height:32px!important;padding:6px 9px!important;
  }
 }
-</style></head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
+</style>
+<style id="nhl-v193-professional-match-cards">
+/* V193 : presentation uniforme et lisible des rencontres CH, LNH et series. */
+#gameslist .match-tile,#leaguegames .match-tile,#playoffGamesList .match-tile{
+ background:linear-gradient(155deg,#142a44 0%,#0c1b2f 100%)!important;
+ border:1px solid #36516e!important;border-radius:16px!important;
+ box-shadow:0 5px 16px rgba(0,0,0,.18)!important;
+ padding:16px!important;margin:0!important;min-width:0!important;
+ overflow:hidden;
+}
+#gameslist .match-tile:has(.pill.on),#leaguegames .match-tile:has(.pill.on),#playoffGamesList .match-tile:has(.pill.on){
+ border-color:#c44758!important;box-shadow:inset 3px 0 #ed4358,0 5px 18px #0003!important;
+}
+#gameslist .match-tile .game,#leaguegames .match-tile .game,#playoffGamesList .match-tile .game{
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ justify-content:flex-start!important;gap:9px!important;padding:0!important;
+ margin:0!important;border:0!important;min-width:0!important;
+}
+#gameslist .match-tile .game>div,#leaguegames .match-tile .game>div,#playoffGamesList .match-tile .game>div{
+ width:100%!important;max-width:100%!important;min-width:0!important;text-align:center!important;
+}
+#gameslist .match-tile .teams,#leaguegames .match-tile .teams,#playoffGamesList .match-tile .teams{
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ flex-wrap:nowrap!important;gap:8px!important;font-size:16px!important;
+ font-weight:850!important;line-height:1.25!important;white-space:nowrap!important;
+}
+#gameslist .match-tile .team-logo,#leaguegames .match-tile .team-logo,#playoffGamesList .match-tile .team-logo{
+ width:32px!important;height:32px!important;object-fit:contain!important;flex-shrink:0!important;
+}
+#gameslist .match-tile .teams .muted,#leaguegames .match-tile .teams .muted,#playoffGamesList .match-tile .teams .muted{
+ font-size:12px!important;font-weight:600!important;color:#7896b8!important;
+}
+#gameslist .match-tile .when,#leaguegames .match-tile .when,#playoffGamesList .match-tile .when{
+ color:#b7c9df!important;font-size:12px!important;font-weight:550!important;
+ margin:7px 0 3px!important;line-height:1.5!important;text-align:center!important;
+}
+#gameslist .match-tile .pill,#leaguegames .match-tile .pill,#playoffGamesList .match-tile .pill{
+ display:table!important;margin:8px auto 0!important;width:auto!important;
+ max-width:100%!important;padding:5px 11px!important;border-radius:999px!important;
+ background:#263d58!important;color:#d8e6f8!important;
+ font-size:10px!important;font-weight:850!important;letter-spacing:.5px!important;
+ line-height:1.35!important;text-align:center!important;
+}
+#gameslist .match-tile .pill.on,#leaguegames .match-tile .pill.on,#playoffGamesList .match-tile .pill.on{
+ background:#8b2035!important;color:white!important;
+}
+#gameslist .match-tile .result,#leaguegames .match-tile .result,#playoffGamesList .match-tile .result{
+ font-size:clamp(26px,3vw,34px)!important;font-weight:900!important;
+ line-height:1.2!important;letter-spacing:.3px!important;
+ font-variant-numeric:tabular-nums!important;margin:3px auto 0!important;
+ text-align:center!important;color:#f4f8ff!important;
+}
+#gameslist .match-tile .mini,#leaguegames .match-tile .mini,#playoffGamesList .match-tile .mini{
+ font-size:11px!important;color:#a7bfd9!important;line-height:1.5!important;
+ text-align:center!important;margin:5px 0!important;
+}
+#gameslist .match-tile .match-details,#leaguegames .match-tile .match-details,
+#playoffGamesList .match-tile .match-details,#gameslist .match-tile .ch-match-detail{
+ display:table!important;margin:10px auto 0!important;min-height:34px!important;
+ padding:7px 13px!important;font-size:12px!important;font-weight:750!important;
+ border:1px solid #49698b!important;border-radius:9px!important;
+ background:#1b3856!important;color:#e7f2ff!important;line-height:1.3!important;
+}
+#gameslist .match-tile .match-details:hover,#leaguegames .match-tile .match-details:hover,
+#playoffGamesList .match-tile .match-details:hover,#gameslist .match-tile .ch-match-detail:hover{
+ background:#284c70!important;
+}
+#gameslist .match-tile .match-panel,#leaguegames .match-tile .match-panel,#playoffGamesList .match-tile .match-panel{
+ margin-top:12px!important;border-top:1px solid #304b68!important;
+ border-radius:8px!important;
+}
+@media(min-width:701px){
+ #gameslist,#leaguegames{gap:14px!important;grid-template-columns:repeat(auto-fit,minmax(265px,1fr))!important;}
+ #playoffGamesList{gap:14px!important;}
+}
+@media(max-width:700px){
+ #gameslist,#leaguegames{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;}
+ #gameslist .match-tile,#leaguegames .match-tile,#playoffGamesList .match-tile{padding:14px 12px!important;}
+ #gameslist .match-tile .teams,#leaguegames .match-tile .teams,#playoffGamesList .match-tile .teams{font-size:15px!important;gap:6px!important;}
+ #gameslist .match-tile .team-logo,#leaguegames .match-tile .team-logo,#playoffGamesList .match-tile .team-logo{width:28px!important;height:28px!important;}
+ #gameslist .match-tile .result,#leaguegames .match-tile .result,#playoffGamesList .match-tile .result{font-size:29px!important;}
+}
+</style>
+</head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
 <div class="navgroup playoff-navgroup"><h2>🏆 Séries</h2><nav class="tabs" aria-label="Sections séries éliminatoires"><button class="tab" data-tab="playoffGames">Matchs</button><button class="tab" data-tab="playoffBracket">Tableau</button><button class="tab" data-tab="playoffPlayers">Joueurs</button></nav></div>
 <section id="playoffGames" class="section hide"><div class="toolbar"><h2>Calendrier et résultats (Séries)</h2><div class="league-date-controls"><button class="btn back" id="playoffYesterday" type="button">← Hier</button><button class="btn back" id="playoffToday" type="button">Aujourd’hui</button><button class="btn back" id="playoffTomorrow" type="button">Demain →</button><div class="league-date-picker"><label for="playoffDate">Date :</label><input type="date" id="playoffDate"></div></div></div><div class="card" id="playoffGamesList"><div class="empty">Les rencontres des séries seront affichées lorsqu'elles seront disponibles.</div></div></section>
 <section id="playoffBracket" class="section hide"><div class="playoff-toolbar"><h2>Tableau des séries éliminatoires</h2><span class="muted" id="playoffBracketSeason"></span></div><div id="playoffBracketContent"><p class="muted">Le tableau sera disponible lorsque les confrontations seront officielles.</p></div></section>
