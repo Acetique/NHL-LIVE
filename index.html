@@ -1886,7 +1886,7 @@ header .brand{font-size:clamp(33px,3.5vw,43px)!important;line-height:1.15}
 @media(max-width:600px){.playoff-rounds{grid-template-columns:1fr}.playoff-series-card{padding:10px}}
 @media(min-width:760px){#playoffGamesList{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}#playoffGamesList>.empty{grid-column:1/-1}}
 </style>
-</head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Forcer collecte LNH</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
+</head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
 <div class="navgroup playoff-navgroup"><h2>🏆 Séries</h2><nav class="tabs" aria-label="Sections séries éliminatoires"><button class="tab" data-tab="playoffGames">Matchs</button><button class="tab" data-tab="playoffBracket">Tableau</button><button class="tab" data-tab="playoffPlayers">Joueurs</button></nav></div>
 <section id="playoffGames" class="section hide"><div class="toolbar"><h2>Calendrier et résultats (Séries)</h2><div class="league-date-controls"><button class="btn back" id="playoffYesterday" type="button">← Hier</button><button class="btn back" id="playoffToday" type="button">Aujourd’hui</button><button class="btn back" id="playoffTomorrow" type="button">Demain →</button><div class="league-date-picker"><label for="playoffDate">Date :</label><input type="date" id="playoffDate"></div></div></div><div class="card" id="playoffGamesList"><div class="empty">Les rencontres des séries seront affichées lorsqu'elles seront disponibles.</div></div></section>
 <section id="playoffBracket" class="section hide"><div class="playoff-toolbar"><h2>Tableau des séries éliminatoires</h2><span class="muted" id="playoffBracketSeason"></span></div><div id="playoffBracketContent"><p class="muted">Le tableau sera disponible lorsque les confrontations seront officielles.</p></div></section>
@@ -2234,22 +2234,43 @@ async function showGoalieProfile(id){
 }
 document.addEventListener('click',e=>{const b=e.target.closest('[data-goalie-player]');if(b)showGoalieProfile(Number(b.dataset.goaliePlayer));});
 
+// V181 : préparer les trois classements une seule fois hors écran.
+// Le premier changement de mode réutilise un tbody déjà construit.
+let rankCachedSource=null;
+let rankCachedRows=null;
 function renderAllStandings(){
  const mode=$('rankMode').value;
+ if(rankCachedSource!==leagueStandings || !rankCachedRows){
+   rankCachedSource=leagueStandings;
+   rankCachedRows={};
+   for(const rankView of ['league','conference','division']){
+     rankCachedRows[rankView]=buildRankRows(rankView);
+   }
+ }
  $('allstandings').classList.toggle('rank-grouped',mode!=='league');
+ const target=rankCachedRows[mode]||rankCachedRows.league;
+ const current=document.getElementById('allstandingrows');
+ if(current!==target)current.replaceWith(target);
+ return;
+}
+function buildRankRows(mode){
  const key=mode==='division'?'divisionName':mode==='conference'?'conferenceName':null;
  const a=[...leagueStandings].sort((x,y)=>{
   if(key){const group=String(x[key]||'').localeCompare(String(y[key]||''),'fr');if(group)return group;}
   return (Number(y.points)||0)-(Number(x.points)||0)||(Number(y.pointPctg)||0)-(Number(x.pointPctg)||0)||(Number(y.wins)||0)-(Number(x.wins)||0);
  });
  let current='',rank=0;
- $('allstandingrows').innerHTML=a.map((t,i)=>{
+ const html=a.map((t,i)=>{
    const group=key?String(t[key]||'Non classé'):'Toutes les équipes';
    let heading='';if(group!==current){current=group;rank=0;if(key)heading=`<tr class="group-heading"><td colspan="9">${safe(mode==='division'?'Division ':'Conférence ')}${safe(group)}</td></tr><tr class="group-column-headings"><th scope="col"><span class="rank-label-desktop">Rang</span><span class="rank-label-mobile">#</span></th><th scope="col">Équipes</th><th scope="col"><span class="league-mj-heading">MJ</span></th><th scope="col">V</th><th scope="col">D</th><th scope="col">DP</th><th scope="col">PTS</th><th scope="col">BP</th><th scope="col">BC</th></tr>`;}rank++;
    const code=teamCode(t.teamAbbrev);
    const logo=teamLogo({abbrev:code,logo:t.teamLogo});
    return heading+`<tr style="${code==='MTL'?'background:#283e60':''}"><td>${key?rank:i+1}</td><td><div class="player">${teamScheduleButton(code,logo,code)}</div></td><td>${t.gamesPlayed??'—'}</td><td>${t.wins??'—'}</td><td>${t.losses??'—'}</td><td>${t.otLosses??'—'}</td><td><b>${t.points??'—'}</b></td><td>${t.goalFor??t.goalsFor??'—'}</td><td>${t.goalAgainst??t.goalsAgainst??'—'}</td></tr>`;
  }).join('')||'<tr><td colspan="9">Classement indisponible. Exécuter GitHub Actions.</td></tr>';
+ const tbody=document.createElement('tbody');
+ tbody.id='allstandingrows';
+ tbody.innerHTML=html;
+ return tbody;
 }
 function populateCompare(){
  const players=[...skaters].sort((a,b)=>a.name.localeCompare(b.name,'fr'));
@@ -2355,13 +2376,13 @@ async function forceGithubUpdate(){
   $('status').textContent='GitHub Actions déclenché. En attente de la nouvelle collecte…';
   // Le déclenchement est asynchrone : la collecte prend plusieurs minutes.
   const started=Date.now();const poll=async()=>{
-    if(Date.now()-started>20*60*1000){btn.disabled=false;btn.textContent='⚡ Forcer collecte LNH';$('status').textContent='Collecte non confirmée après 20 minutes : vérifier GitHub Actions.';return;}
+    if(Date.now()-started>20*60*1000){btn.disabled=false;btn.textContent='⚡ Collecte';$('status').textContent='Collecte non confirmée après 20 minutes : vérifier GitHub Actions.';return;}
     try{const meta=await get('/metadata');const stamp=meta.updated_at||meta.completed_at||'';
-      if(stamp&&stamp!==beforeStamp&&new Date(stamp).getTime()>=started-60000){await refresh();btn.disabled=false;btn.textContent='⚡ Forcer collecte LNH';$('status').textContent='✓ Nouvelle collecte publiée et données rechargées.';return;}}
+      if(stamp&&stamp!==beforeStamp&&new Date(stamp).getTime()>=started-60000){await refresh();btn.disabled=false;btn.textContent='⚡ Collecte';$('status').textContent='✓ Nouvelle collecte publiée et données rechargées.';return;}}
     catch(e){}
     setTimeout(poll,15000);
   };setTimeout(poll,15000);
- }catch(e){btn.disabled=false;btn.textContent='⚡ Forcer collecte LNH';$('status').textContent='Échec du déclenchement : '+e.message;}
+ }catch(e){btn.disabled=false;btn.textContent='⚡ Collecte';$('status').textContent='Échec du déclenchement : '+e.message;}
 }
 $('forceUpdate').onclick=forceGithubUpdate;
 </script>
@@ -2402,7 +2423,7 @@ $('forceUpdate').onclick=forceGithubUpdate;
       window.alert('Impossible de déclencher GitHub Actions : ' + error.message + '\nSi tu vois Failed to fetch, vérifie les autorisations CORS de la fonction Vercel.');
     } finally {
       button.disabled = false;
-      button.textContent = '⚡ Forcer collecte LNH';
+      button.textContent = '⚡ Collecte';
     }
   }, true);
 })();
