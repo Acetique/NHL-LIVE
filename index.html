@@ -2141,6 +2141,37 @@ main.wrap > .grid:first-child > .card:has(#last):hover{border-color:#41688d!impo
  main.wrap > .grid:first-child > .card .muted{font-size:11px!important;line-height:1.4!important}
 }
 </style>
+<style id="nhl-v196-modern-dark-blue-buttons">
+/* V196 — boutons de navigation et d'action harmonises, sans changer leurs actions. */
+.tab,.btn,.rank-mode-button,.team-schedule-tab,
+button[class*="nav"],button[class*="filter"]{
+ background:linear-gradient(165deg,#173451 0%,#0d233b 100%)!important;
+ color:#eaf3ff!important;
+ border:1px solid #385571!important;
+ border-radius:10px!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 2px 5px rgba(0,0,0,.12)!important;
+ font-weight:750;
+ transition:background .16s ease,border-color .16s ease,box-shadow .16s ease,transform .16s ease;
+}
+.tab:not(.active):hover,.btn:not(:disabled):hover,.rank-mode-button:not(.active):hover,.team-schedule-tab:not(.active):hover,
+button[class*="nav"]:not(.active):hover,button[class*="filter"]:not(.active):hover{
+ background:linear-gradient(165deg,#224767,#14314e)!important;
+ border-color:#6685a5!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 3px 9px rgba(0,0,0,.2)!important;
+}
+/* Garder un etat actif distinct pour les modes, les dates et les onglets. */
+.tab.active,.rank-mode-button.active,.team-schedule-tab.active,
+button[class*="nav"].active,button[class*="filter"].active{
+ background:linear-gradient(160deg,#ba3047,#86243a)!important;
+ border-color:#db5367!important;color:#fff!important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 2px 8px rgba(0,0,0,.16)!important;
+}
+.tab:focus-visible,.btn:focus-visible,.rank-mode-button:focus-visible,.team-schedule-tab:focus-visible{
+ outline:2px solid #8dc3ff!important;outline-offset:2px!important;
+}
+@media(hover:none){.tab:active,.btn:active,.rank-mode-button:active{transform:scale(.985)}}
+@media(prefers-reduced-motion:reduce){.tab,.btn,.rank-mode-button,.team-schedule-tab{transition:none!important}}
+</style>
 </head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
 <div class="navgroup playoff-navgroup"><h2>🏆 Séries</h2><nav class="tabs" aria-label="Sections séries éliminatoires"><button class="tab" data-tab="playoffGames">Matchs</button><button class="tab" data-tab="playoffBracket">Tableau</button><button class="tab" data-tab="playoffPlayers">Joueurs</button></nav></div>
 <section id="playoffGames" class="section hide"><div class="toolbar"><h2>Calendrier et résultats (Séries)</h2><div class="league-date-controls"><button class="btn back" id="playoffYesterday" type="button">← Hier</button><button class="btn back" id="playoffToday" type="button">Aujourd’hui</button><button class="btn back" id="playoffTomorrow" type="button">Demain →</button><div class="league-date-picker"><label for="playoffDate">Date :</label><input type="date" id="playoffDate"></div></div></div><div class="card" id="playoffGamesList"><div class="empty">Les rencontres des séries seront affichées lorsqu'elles seront disponibles.</div></div></section>
