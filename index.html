@@ -2209,6 +2209,21 @@ button[class*="nav"].active,button[class*="filter"].active{
  }
 }
 </style>
+
+<style id="nhl-v199-top-card-typography">
+/* Titres des trois cartes superieures */
+main.wrap > .grid:first-child > .card .eyebrow{font-size:clamp(15px,1.5vw,18px)!important;letter-spacing:.35px!important;line-height:1.3!important;min-height:24px!important}
+/* Equipes, date et heure du dernier resultat */
+#lastdetail{font-size:clamp(14px,1.35vw,17px)!important;font-weight:700!important;line-height:1.5!important;color:#d7e6f7!important;overflow-wrap:anywhere}
+/* Classement division et general de la fiche saison */
+#recorddetail{font-size:clamp(15px,1.45vw,19px)!important;font-weight:750!important;line-height:1.5!important;color:#d7e6f7!important}
+@media(max-width:750px){
+ main.wrap > .grid:first-child > .card .eyebrow{font-size:15px!important;min-height:21px!important;letter-spacing:.2px!important}
+ #lastdetail{font-size:14px!important}
+ #recorddetail{font-size:15px!important}
+}
+@media(max-width:360px){#recorddetail{font-size:14px!important}#recorddetail .record-mobile + .record-mobile{margin-left:.65em}}
+</style>
 </head><body><header><div class="wrap"><div class="brand">🔴 <b>NHL</b> LIVE</div><div> <button class="btn back" id="resetFilters" type="button" title="Réinitialiser les filtres et recherches">↺ Réinitialiser</button> <button class="btn" id="refresh">↻ Actualiser</button> <button class="btn" id="forceUpdate" type="button" title="Déclencher GitHub Actions">⚡ Collecte</button></div></div></header><main class="wrap"><div class="grid"><div class="card"><div class="eyebrow" id="nextHeading">Prochain match</div><div class="big" id="next">—</div><div class="muted" id="nextdetail">Chargement…</div></div><div class="card"><div class="eyebrow">Dernier résultat</div><div class="big" id="last">—</div><div class="muted" id="lastdetail">Chargement…</div></div><div class="card"><div class="eyebrow"><span class="record-title-desktop">Fiche saison régulière</span><span class="record-title-mobile">Fiche saison</span></div><div class="big" id="record">—</div><div class="muted" id="recorddetail">Chargement…</div></div></div><div class="navgroup"><h2>🏒 Saison</h2><nav class="tabs" aria-label="Sections LNH"><button class="tab active" data-tab="league">Matchs</button><button class="tab" data-tab="allstandings">Classement</button><button class="tab" data-tab="leagueplayers"><span class="league-nav-desktop">Meneurs</span><span class="league-nav-mobile">Joueurs</span></button><button class="tab league-goalies-nav" data-tab="leaguegoalies">Gardiens</button><button class="tab" data-tab="leaguecompare">Comparer</button></nav></div>
 <div class="navgroup playoff-navgroup"><h2>🏆 Séries</h2><nav class="tabs" aria-label="Sections séries éliminatoires"><button class="tab" data-tab="playoffGames">Matchs</button><button class="tab" data-tab="playoffBracket">Tableau</button><button class="tab" data-tab="playoffPlayers">Joueurs</button></nav></div>
 <section id="playoffGames" class="section hide"><div class="toolbar"><h2>Calendrier et résultats (Séries)</h2><div class="league-date-controls"><button class="btn back" id="playoffYesterday" type="button">← Hier</button><button class="btn back" id="playoffToday" type="button">Aujourd’hui</button><button class="btn back" id="playoffTomorrow" type="button">Demain →</button><div class="league-date-picker"><label for="playoffDate">Date :</label><input type="date" id="playoffDate"></div></div></div><div class="card" id="playoffGamesList"><div class="empty">Les rencontres des séries seront affichées lorsqu'elles seront disponibles.</div></div></section>
